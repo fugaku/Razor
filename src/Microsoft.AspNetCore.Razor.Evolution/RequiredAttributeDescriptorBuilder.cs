@@ -16,7 +16,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
         private RequiredAttributeDescriptor.NameComparisonMode _nameComparison;
         private string _value;
         private RequiredAttributeDescriptor.ValueComparisonMode _valueComparison;
-        private List<RazorDiagnostic> _diagnostics;
+        private HashSet<RazorDiagnostic> _diagnostics;
 
         private RequiredAttributeDescriptorBuilder()
         {
@@ -48,7 +48,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
             return this;
         }
 
-        public RequiredAttributeDescriptorBuilder ValueComparison(RequiredAttributeDescriptor.ValueComparisonMode valueComparison)
+        public RequiredAttributeDescriptorBuilder ValueComparisonMode(RequiredAttributeDescriptor.ValueComparisonMode valueComparison)
         {
             _valueComparison = valueComparison;
 
@@ -71,7 +71,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
                     "TODO: Track IDS",
                     () => "{0} name cannot be null or whitespace.",
                     RazorDiagnosticSeverity.Error);
-                var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), _name);
+                var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), "Attribute");
 
                 yield return diagnostic;
             }
@@ -115,7 +115,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
         {
             if (_diagnostics == null)
             {
-                _diagnostics = new List<RazorDiagnostic>();
+                _diagnostics = new HashSet<RazorDiagnostic>();
             }
         }
 

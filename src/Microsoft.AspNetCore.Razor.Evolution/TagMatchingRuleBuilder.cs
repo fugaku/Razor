@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Razor.Evolution.Legacy;
 
 namespace Microsoft.AspNetCore.Razor.Evolution
 {
@@ -15,8 +16,8 @@ namespace Microsoft.AspNetCore.Razor.Evolution
         private string _tagName;
         private string _parentTag;
         private TagStructure _tagStructure;
-        private List<RazorDiagnostic> _diagnostics;
-        private List<RequiredAttributeDescriptor> _requiredAttributeDescriptors;
+        private HashSet<RazorDiagnostic> _diagnostics;
+        private HashSet<RequiredAttributeDescriptor> _requiredAttributeDescriptors;
 
         private TagMatchingRuleBuilder()
         {
@@ -93,11 +94,11 @@ namespace Microsoft.AspNetCore.Razor.Evolution
                     "TODO: Track IDS",
                     () => "{0} name cannot be null or whitespace.",
                     RazorDiagnosticSeverity.Error);
-                var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), _tagName);
+                var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), "Tag");
 
                 yield return diagnostic;
             }
-            else
+            else if (_tagName != TagHelperDescriptorProvider.ElementCatchAllTarget)
             {
                 foreach (var character in _tagName)
                 {
@@ -173,7 +174,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
         {
             if (_requiredAttributeDescriptors == null)
             {
-                _requiredAttributeDescriptors = new List<RequiredAttributeDescriptor>();
+                _requiredAttributeDescriptors = new HashSet<RequiredAttributeDescriptor>(RequiredAttributeDescriptorComparer.Default);
             }
         }
 
@@ -181,7 +182,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
         {
             if (_diagnostics == null)
             {
-                _diagnostics = new List<RazorDiagnostic>();
+                _diagnostics = new HashSet<RazorDiagnostic>();
             }
         }
 

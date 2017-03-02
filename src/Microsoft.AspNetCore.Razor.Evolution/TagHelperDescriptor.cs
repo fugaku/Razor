@@ -54,7 +54,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
             {
                 var attributeDiagnostics = BoundAttributes.SelectMany(attribute => attribute.Diagnostics);
                 var ruleDiagnostics = TagMatchingRules.SelectMany(rule => rule.GetAllDiagnostics());
-                var combinedDiagnostics = attributeDiagnostics.Concat(ruleDiagnostics);
+                var combinedDiagnostics = attributeDiagnostics.Concat(ruleDiagnostics).Concat(Diagnostics);
                 _allDiagnostics = combinedDiagnostics.ToArray();
             }
 
