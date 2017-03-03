@@ -88,7 +88,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
 
             public override void VisitSetTagHelperProperty(SetTagHelperPropertyIRNode node)
             {
-                if (!node.Descriptor.IsStringProperty ||
+                if (!(node.Descriptor.IsStringProperty || (node.IsIndexerNameMatch && node.Descriptor.IsIndexerStringProperty)) ||
                     node.Children.Count != 1 ||
                     !(node.Children.First() is HtmlContentIRNode))
                 {

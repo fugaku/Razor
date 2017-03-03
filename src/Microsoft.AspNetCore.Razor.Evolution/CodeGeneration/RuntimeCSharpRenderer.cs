@@ -438,7 +438,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution.CodeGeneration
                 tagHelperRenderingContext.RenderedBoundAttributes[node.AttributeName] = propertyValueAccessor;
             }
 
-            if (node.Descriptor.IsStringProperty || node.Descriptor.IsIndexerStringProperty)
+            if (node.Descriptor.IsStringProperty || (node.IsIndexerNameMatch && node.Descriptor.IsIndexerStringProperty))
             {
                 Context.Writer.WriteMethodInvocation("BeginWriteTagHelperAttribute" /* ORIGINAL: BeginWriteTagHelperAttributeMethodName */);
 

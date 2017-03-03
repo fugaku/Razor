@@ -664,7 +664,9 @@ namespace Microsoft.AspNetCore.Razor.Evolution.Legacy
         {
             var firstBoundAttribute = FindFirstBoundAttribute(name, descriptors);
             var isBoundAttribute = firstBoundAttribute != null;
-            var isBoundNonStringAttribute = isBoundAttribute && !firstBoundAttribute.IsStringProperty;
+            var isBoundNonStringAttribute = isBoundAttribute &&
+                !(firstBoundAttribute.IsStringProperty ||
+                    (firstBoundAttribute.IsIndexerNameMatch(name) && firstBoundAttribute.IsIndexerStringProperty));
             var isMissingDictionaryKey = isBoundAttribute &&
                 firstBoundAttribute.IndexerNamePrefix != null &&
                 name.Length == firstBoundAttribute.IndexerNamePrefix.Length;
