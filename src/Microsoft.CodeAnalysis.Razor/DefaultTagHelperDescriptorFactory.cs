@@ -1,15 +1,15 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.AspNetCore.Razor.Evolution;
+using Microsoft.AspNetCore.Razor.Evolution.Legacy;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Razor.Evolution;
-using Microsoft.AspNetCore.Razor.Evolution.Legacy;
-using Microsoft.CodeAnalysis;
 
 namespace Microsoft.CodeAnalysis.Razor
 {
@@ -248,13 +248,14 @@ namespace Microsoft.CodeAnalysis.Razor
             }
 
             var hasPublicSetter = property.SetMethod != null && property.SetMethod.DeclaredAccessibility == Accessibility.Public;
+            var typeName = GetFullName(property.Type);
+            builder
+                .TypeName(typeName)
+                .PropertyName(property.Name);
+
             if (hasPublicSetter)
             {
-                var typeName = GetFullName(property.Type);
-                builder
-                    .Name(attributeName)
-                    .PropertyName(property.Name)
-                    .TypeName(typeName);
+                builder.Name(attributeName);
 
                 if (property.Type.TypeKind == TypeKind.Enum)
                 {
@@ -271,7 +272,7 @@ namespace Microsoft.CodeAnalysis.Razor
                     }
                 }
             }
-            else if (hasExplicitName)
+            else if (hasExplicitName && !IsPotentialDictionaryProperty(property))
             {
                 // Specified HtmlAttributeNameAttribute.Name though property has no public setter.
                 var diagnosticDescriptor = new RazorDiagnosticDescriptor(
@@ -315,9 +316,26 @@ namespace Microsoft.CodeAnalysis.Razor
                 }
             }
 
-            var dictionaryValueType = GetDictionaryValueType(property);
+            var dictionaryArgumentTypes = GetDictionaryArgumentTypes(property);
+            if (dictionaryArgumentTypes != null)
+            {
+                var prefix = dictionaryAttributePrefix;
+                if (attributeNameAttribute == null || !dictionaryAttributePrefixSet)
+                {
+                    prefix = attributeName + "-";
+                }
 
-            if (dictionaryValueType?.SpecialType != SpecialType.System_String)
+                if (prefix != null)
+                {
+                    var dictionaryValueType = dictionaryArgumentTypes[1];
+                    var dictionaryValueTypeName = GetFullName(dictionaryValueType);
+                    builder.AsDictionary(prefix, dictionaryValueTypeName);
+                }
+            }
+
+            var dictionaryKeyType = dictionaryArgumentTypes?[0];
+
+            if (dictionaryKeyType?.SpecialType != SpecialType.System_String)
             {
                 if (dictionaryAttributePrefix != null)
                 {
@@ -360,22 +378,9 @@ namespace Microsoft.CodeAnalysis.Razor
 
                 return;
             }
-
-            // Potential prefix case. Use default prefix (based on name)?
-            var useDefault = attributeNameAttribute == null || !dictionaryAttributePrefixSet;
-
-            var prefix = useDefault ? attributeName + "-" : dictionaryAttributePrefix;
-            if (prefix == null)
-            {
-                // DictionaryAttributePrefix explicitly set to null. No need to mutate the descriptor to represent indexers.
-                return;
-            }
-
-            var dictionaryValueTypeName = GetFullName(dictionaryValueType);
-            builder.AsDictionary(prefix, dictionaryValueTypeName);
         }
 
-        private ITypeSymbol GetDictionaryValueType(IPropertySymbol property)
+        private IReadOnlyList<ITypeSymbol> GetDictionaryArgumentTypes(IPropertySymbol property)
         {
             INamedTypeSymbol dictionaryType;
             if ((property.Type as INamedTypeSymbol)?.ConstructedFrom == _iDictionarySymbol)
@@ -391,8 +396,7 @@ namespace Microsoft.CodeAnalysis.Razor
                 dictionaryType = null;
             }
 
-            var dictionaryValueType = dictionaryType?.TypeArguments[0];
-            return dictionaryValueType;
+            return dictionaryType?.TypeArguments;
         }
 
         private static string HtmlTargetElementAttribute_Attributes(AttributeData attibute)
@@ -446,6 +450,13 @@ namespace Microsoft.CodeAnalysis.Razor
             return TagStructure.Unspecified;
         }
 
+        private bool IsPotentialDictionaryProperty(IPropertySymbol property)
+        {
+            return
+                ((property.Type as INamedTypeSymbol)?.ConstructedFrom == _iDictionarySymbol || property.Type.AllInterfaces.Any(s => s.ConstructedFrom == _iDictionarySymbol)) &&
+                GetDictionaryArgumentTypes(property)?[0].SpecialType == SpecialType.System_String;
+        }
+
         private IEnumerable<IPropertySymbol> GetAccessibleProperties(INamedTypeSymbol typeSymbol)
         {
             var accessibleProperties = new Dictionary<string, IPropertySymbol>(StringComparer.Ordinal);
@@ -460,10 +471,10 @@ namespace Microsoft.CodeAnalysis.Razor
                         property.GetMethod != null &&
                         property.GetMethod.DeclaredAccessibility == Accessibility.Public &&
                         property.GetAttributes().Where(a => a.AttributeClass == _htmlAttributeNotBoundAttributeSymbol).FirstOrDefault() == null &&
-                        !accessibleProperties.ContainsKey(property.Name) &&
-                            (property.SetMethod != null && property.SetMethod.DeclaredAccessibility == Accessibility.Public || 
-                            (property.Type as INamedTypeSymbol)?.ConstructedFrom == _iDictionarySymbol &&
-                            GetDictionaryValueType(property).SpecialType == SpecialType.System_String))
+                        (property.GetAttributes().Any(a => a.AttributeClass == _htmlAttributeNameAttributeSymbol) ||
+                        property.SetMethod != null && property.SetMethod.DeclaredAccessibility == Accessibility.Public ||
+                        IsPotentialDictionaryProperty(property)) &&
+                        !accessibleProperties.ContainsKey(property.Name))
                     {
                         accessibleProperties.Add(property.Name, property);
                     }

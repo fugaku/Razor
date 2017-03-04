@@ -1787,6 +1787,19 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         typeof(AspNetCore.Razor.TagHelpers.HtmlAttributeNameAttribute).FullName,
                         nameof(AspNetCore.Razor.TagHelpers.HtmlAttributeNameAttribute.DictionaryAttributePrefix),
                         "IDictionary<string, TValue>");
+                var badSetterDiagnosticDescriptor = new RazorDiagnosticDescriptor(
+                    "TODO: Track IDS",
+                    () => Resources.TagHelperDescriptorFactory_InvalidAttributePrefixNull,
+                    RazorDiagnosticSeverity.Error);
+                Func<string, string, RazorDiagnostic> onBadSetterError = (typeName, propertyName) =>
+                    RazorDiagnostic.Create(
+                        badSetterDiagnosticDescriptor,
+                        new SourceSpan(SourceLocation.Undefined, contentLength: 0),
+                        typeName,
+                        propertyName,
+                        TagHelperTypes.HtmlAttributeNameAttribute,
+                        TagHelperTypes.HtmlAttributeName.DictionaryAttributePrefix,
+                        "IDictionary<string, TValue>");
                 var dictionaryNamespace = typeof(IDictionary<,>).FullName;
                 dictionaryNamespace = dictionaryNamespace.Substring(0, dictionaryNamespace.IndexOf('`'));
 
@@ -1805,164 +1818,130 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .Build()
                         }
                     },
-                    //{
-                    //    typeof(SingleValidHtmlAttributePrefix),
-                    //    new[]
-                    //    {
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-name",
-                    //            PropertyName = nameof(SingleValidHtmlAttributePrefix.DictionaryProperty),
-                    //            TypeName = $"{dictionaryNamespace}<System.String, System.String>"
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-name-",
-                    //            PropertyName = nameof(SingleValidHtmlAttributePrefix.DictionaryProperty),
-                    //            TypeName = typeof(string).FullName,
-                    //            IsIndexer = true
-                    //        }
-                    //    },
-                    //    new string[0]
-                    //},
-                    //{
-                    //    typeof(MultipleValidHtmlAttributePrefix),
-                    //    new[]
-                    //    {
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-name1",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.DictionaryProperty),
-                    //            TypeName = $"{typeof(Dictionary<,>).Namespace}.Dictionary<System.String, System.Object>"
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-name2",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.DictionarySubclassProperty),
-                    //            TypeName = typeof(DictionarySubclass).FullName
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-name3",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.DictionaryWithoutParameterlessConstructorProperty),
-                    //            TypeName = typeof(DictionaryWithoutParameterlessConstructor).FullName
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-name4",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.GenericDictionarySubclassProperty),
-                    //            TypeName = typeof(GenericDictionarySubclass<object>).Namespace + ".GenericDictionarySubclass<System.Object>"
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-name5",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.SortedDictionaryProperty),
-                    //            TypeName = typeof(SortedDictionary<string, int>).Namespace + ".SortedDictionary<System.String, System.Int32>"
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-name6",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.StringProperty),
-                    //            TypeName = typeof(string).FullName,
-                    //            IsStringProperty = true,
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-prefix1-",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.DictionaryProperty),
-                    //            TypeName = typeof(object).FullName,
-                    //            IsIndexer = true
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-prefix2-",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.DictionarySubclassProperty),
-                    //            TypeName = typeof(string).FullName,
-                    //            IsIndexer = true
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-prefix3-",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.DictionaryWithoutParameterlessConstructorProperty),
-                    //            TypeName = typeof(string).FullName,
-                    //            IsIndexer = true
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-prefix4-",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.GenericDictionarySubclassProperty),
-                    //            TypeName = typeof(object).FullName,
-                    //            IsIndexer = true
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-prefix5-",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.SortedDictionaryProperty),
-                    //            TypeName = typeof(int).FullName,
-                    //            IsIndexer = true
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "get-only-dictionary-property-",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.GetOnlyDictionaryProperty),
-                    //            TypeName = typeof(int).FullName,
-                    //            IsIndexer = true
-                    //        },
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-prefix6",
-                    //            PropertyName = nameof(MultipleValidHtmlAttributePrefix.GetOnlyDictionaryPropertyWithAttributePrefix),
-                    //            TypeName = typeof(string).FullName,
-                    //            IsIndexer = true
-                    //        }
-                    //    },
-                    //    new string[0]
-                    //},
-                    //{
-                    //    typeof(SingleInvalidHtmlAttributePrefix),
-                    //    Enumerable.Empty<BoundAttributeDescriptor>(),
-                    //    new[]
-                    //    {
-                    //        onError(
-                    //            typeof(SingleInvalidHtmlAttributePrefix).FullName,
-                    //            nameof(SingleInvalidHtmlAttributePrefix.StringProperty)),
-                    //    }
-                    //},
-                    //{
-                    //    typeof(MultipleInvalidHtmlAttributePrefix),
-                    //    new[]
-                    //    {
-                    //        new BoundAttributeDescriptor
-                    //        {
-                    //            Name = "valid-name1",
-                    //            PropertyName = nameof(MultipleInvalidHtmlAttributePrefix.LongProperty),
-                    //            TypeName = typeof(long).FullName
-                    //        }
-                    //    },
-                    //    new[]
-                    //    {
-                    //        onError(
-                    //            typeof(MultipleInvalidHtmlAttributePrefix).FullName,
-                    //            nameof(MultipleInvalidHtmlAttributePrefix.DictionaryOfIntProperty)),
-                    //        onError(
-                    //            typeof(MultipleInvalidHtmlAttributePrefix).FullName,
-                    //            nameof(MultipleInvalidHtmlAttributePrefix.ReadOnlyDictionaryProperty)),
-                    //        onError(
-                    //            typeof(MultipleInvalidHtmlAttributePrefix).FullName,
-                    //            nameof(MultipleInvalidHtmlAttributePrefix.IntProperty)),
-                    //        onError(
-                    //            typeof(MultipleInvalidHtmlAttributePrefix).FullName,
-                    //            nameof(MultipleInvalidHtmlAttributePrefix.DictionaryOfIntSubclassProperty)),
-                    //        onError(
-                    //            typeof(MultipleInvalidHtmlAttributePrefix).FullName,
-                    //            nameof(MultipleInvalidHtmlAttributePrefix.GetOnlyDictionaryAttributePrefix)),
-                    //        $"Invalid tag helper bound property '{ typeof(MultipleInvalidHtmlAttributePrefix).FullName }." +
-                    //        $"{ nameof(MultipleInvalidHtmlAttributePrefix.GetOnlyDictionaryPropertyWithAttributeName) }'. " +
-                    //        $"'{ typeof(AspNetCore.Razor.TagHelpers.HtmlAttributeNameAttribute).FullName }." +
-                    //        $"{ nameof(AspNetCore.Razor.TagHelpers.HtmlAttributeNameAttribute.Name) }' must be null or empty if property has " +
-                    //        "no public setter.",
-                    //    }
-                    //},
+                    {
+                        typeof(SingleValidHtmlAttributePrefix),
+                        new[]
+                        {
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(SingleValidHtmlAttributePrefix).FullName)
+                                .Name("valid-name")
+                                .PropertyName(nameof(SingleValidHtmlAttributePrefix.DictionaryProperty))
+                                .TypeName($"{dictionaryNamespace}<System.String, System.String>")
+                                .AsDictionary("valid-name-", typeof(string).FullName)
+                                .Build()
+                        }
+                    },
+                    {
+                        typeof(MultipleValidHtmlAttributePrefix),
+                        new[]
+                        {
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleValidHtmlAttributePrefix).FullName)
+                                .Name("valid-name1")
+                                .PropertyName(nameof(MultipleValidHtmlAttributePrefix.DictionaryProperty))
+                                .TypeName($"{typeof(Dictionary<,>).Namespace}.Dictionary<System.String, System.Object>")
+                                .AsDictionary("valid-prefix1-", typeof(object).FullName)
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleValidHtmlAttributePrefix).FullName)
+                                .Name("valid-name2")
+                                .PropertyName(nameof(MultipleValidHtmlAttributePrefix.DictionarySubclassProperty))
+                                .TypeName(typeof(DictionarySubclass).FullName)
+                                .AsDictionary("valid-prefix2-", typeof(string).FullName)
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleValidHtmlAttributePrefix).FullName)
+                                .Name("valid-name3")
+                                .PropertyName(nameof(MultipleValidHtmlAttributePrefix.DictionaryWithoutParameterlessConstructorProperty))
+                                .TypeName(typeof(DictionaryWithoutParameterlessConstructor).FullName)
+                                .AsDictionary("valid-prefix3-", typeof(string).FullName)
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleValidHtmlAttributePrefix).FullName)
+                                .Name("valid-name4")
+                                .PropertyName(nameof(MultipleValidHtmlAttributePrefix.GenericDictionarySubclassProperty))
+                                .TypeName(typeof(GenericDictionarySubclass<object>).Namespace + ".GenericDictionarySubclass<System.Object>")
+                                .AsDictionary("valid-prefix4-", typeof(object).FullName)
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleValidHtmlAttributePrefix).FullName)
+                                .Name("valid-name5")
+                                .PropertyName(nameof(MultipleValidHtmlAttributePrefix.SortedDictionaryProperty))
+                                .TypeName(typeof(SortedDictionary<string, int>).Namespace + ".SortedDictionary<System.String, System.Int32>")
+                                .AsDictionary("valid-prefix5-", typeof(int).FullName)
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleValidHtmlAttributePrefix).FullName)
+                                .Name("valid-name6")
+                                .PropertyName(nameof(MultipleValidHtmlAttributePrefix.StringProperty))
+                                .TypeName(typeof(string).FullName)
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleValidHtmlAttributePrefix).FullName)
+                                .PropertyName(nameof(MultipleValidHtmlAttributePrefix.GetOnlyDictionaryProperty))
+                                .TypeName($"{dictionaryNamespace}<System.String, System.Int32>")
+                                .AsDictionary("get-only-dictionary-property-", typeof(int).FullName)
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleValidHtmlAttributePrefix).FullName)
+                                .PropertyName(nameof(MultipleValidHtmlAttributePrefix.GetOnlyDictionaryPropertyWithAttributePrefix))
+                                .TypeName($"{dictionaryNamespace}<System.String, System.String>")
+                                .AsDictionary("valid-prefix6", typeof(string).FullName)
+                                .Build()
+                        }
+                    },
+                    {
+                        typeof(SingleInvalidHtmlAttributePrefix),
+                        new[]
+                        {
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(SingleInvalidHtmlAttributePrefix).FullName)
+                                .Name("valid-name")
+                                .PropertyName(nameof(SingleInvalidHtmlAttributePrefix.StringProperty))
+                                .TypeName(typeof(string).FullName)
+                                .AddDiagnostic(onError(typeof(SingleInvalidHtmlAttributePrefix).FullName, nameof(SingleInvalidHtmlAttributePrefix.StringProperty)))
+                                .Build(),
+                        }
+                    },
+                    {
+                        typeof(MultipleInvalidHtmlAttributePrefix),
+                        new[]
+                        {
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleInvalidHtmlAttributePrefix).FullName)
+                                .Name("valid-name1")
+                                .PropertyName(nameof(MultipleInvalidHtmlAttributePrefix.LongProperty))
+                                .TypeName(typeof(long).FullName)
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleInvalidHtmlAttributePrefix).FullName)
+                                .Name("valid-name2")
+                                .PropertyName(nameof(MultipleInvalidHtmlAttributePrefix.DictionaryOfIntProperty))
+                                .TypeName($"{typeof(Dictionary<,>).Namespace}.Dictionary<System.Int32, System.String>")
+                                .AsDictionary("valid-prefix2-", typeof(string).FullName)
+                                .AddDiagnostic(onError(typeof(MultipleInvalidHtmlAttributePrefix).FullName, nameof(MultipleInvalidHtmlAttributePrefix.DictionaryOfIntProperty)))
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleInvalidHtmlAttributePrefix).FullName)
+                                .Name("valid-name3")
+                                .PropertyName(nameof(MultipleInvalidHtmlAttributePrefix.ReadOnlyDictionaryProperty))
+                                .TypeName($"{typeof(IReadOnlyDictionary<,>).Namespace}.IReadOnlyDictionary<System.String, System.Object>")
+                                .AddDiagnostic(onError(typeof(MultipleInvalidHtmlAttributePrefix).FullName, nameof(MultipleInvalidHtmlAttributePrefix.ReadOnlyDictionaryProperty)))
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleInvalidHtmlAttributePrefix).FullName)
+                                .Name("valid-name4")
+                                .PropertyName(nameof(MultipleInvalidHtmlAttributePrefix.IntProperty))
+                                .TypeName(typeof(int).FullName)
+                                .AddDiagnostic(onError(typeof(MultipleInvalidHtmlAttributePrefix).FullName, nameof(MultipleInvalidHtmlAttributePrefix.IntProperty)))
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleInvalidHtmlAttributePrefix).FullName)
+                                .Name("valid-name5")
+                                .PropertyName(nameof(MultipleInvalidHtmlAttributePrefix.DictionaryOfIntSubclassProperty))
+                                .TypeName(typeof(DictionaryOfIntSubclass).FullName)
+                                .AsDictionary("valid-prefix5-", typeof(string).FullName)
+                                .AddDiagnostic(onError(typeof(MultipleInvalidHtmlAttributePrefix).FullName, nameof(MultipleInvalidHtmlAttributePrefix.DictionaryOfIntSubclassProperty)))
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleInvalidHtmlAttributePrefix).FullName)
+                                .PropertyName(nameof(MultipleInvalidHtmlAttributePrefix.GetOnlyDictionaryAttributePrefix))
+                                .TypeName($"{dictionaryNamespace}<System.Int32, System.String>")
+                                .AsDictionary("valid-prefix6", typeof(string).FullName)
+                                .AddDiagnostic(onError(typeof(MultipleInvalidHtmlAttributePrefix).FullName, nameof(MultipleInvalidHtmlAttributePrefix.GetOnlyDictionaryAttributePrefix)))
+                                .Build(),
+                            ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(MultipleInvalidHtmlAttributePrefix).FullName)
+                                .PropertyName(nameof(MultipleInvalidHtmlAttributePrefix.GetOnlyDictionaryPropertyWithAttributeName))
+                                .TypeName($"{dictionaryNamespace}<System.String, System.Object>")
+                                .AsDictionary("invalid-name7-", typeof(object).FullName)
+                                .AddDiagnostic(onBadSetterError(typeof(MultipleInvalidHtmlAttributePrefix).FullName, nameof(MultipleInvalidHtmlAttributePrefix.GetOnlyDictionaryPropertyWithAttributeName)))
+                                .Build(),
+                        }
+                    },
                 };
             }
         }
@@ -1984,143 +1963,93 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
             Assert.Equal(
                 expectedAttributeDescriptors,
                 descriptor.BoundAttributes,
-                ITagHelperBoundAttributeDescriptorBuilder.Default);
+                CaseSensitiveBoundAttributeDescriptorComparer.Default);
         }
 
-        //        public static TheoryData HtmlConversionData
-        //        {
-        //            get
-        //            {
-        //                return new TheoryData<string, string>
-        //                {
-        //                    { "SomeThing", "some-thing" },
-        //                    { "someOtherThing", "some-other-thing" },
-        //                    { "capsONInside", "caps-on-inside" },
-        //                    { "CAPSOnOUTSIDE", "caps-on-outside" },
-        //                    { "ALLCAPS", "allcaps" },
-        //                    { "One1Two2Three3", "one1-two2-three3" },
-        //                    { "ONE1TWO2THREE3", "one1two2three3" },
-        //                    { "First_Second_ThirdHi", "first_second_third-hi" }
-        //                };
-        //            }
-        //        }
+        public static TheoryData HtmlConversionData
+        {
+            get
+            {
+                return new TheoryData<string, string>
+                {
+                    { "SomeThing", "some-thing" },
+                    { "someOtherThing", "some-other-thing" },
+                    { "capsONInside", "caps-on-inside" },
+                    { "CAPSOnOUTSIDE", "caps-on-outside" },
+                    { "ALLCAPS", "allcaps" },
+                    { "One1Two2Three3", "one1-two2-three3" },
+                    { "ONE1TWO2THREE3", "one1two2three3" },
+                    { "First_Second_ThirdHi", "first_second_third-hi" }
+                };
+            }
+        }
 
-        //        [Theory]
-        //        [MemberData(nameof(HtmlConversionData))]
-        //        public void ToHtmlCase_ReturnsExpectedConversions(string input, string expectedOutput)
-        //        {
-        //            // Arrange, Act
-        //            var output = DefaultTagHelperDescriptorFactory.ToHtmlCase(input);
+        [Theory]
+        [MemberData(nameof(HtmlConversionData))]
+        public void ToHtmlCase_ReturnsExpectedConversions(string input, string expectedOutput)
+        {
+            // Arrange, Act
+            var output = DefaultTagHelperDescriptorFactory.ToHtmlCase(input);
 
-        //            // Assert
-        //            Assert.Equal(output, expectedOutput);
-        //        }
+            // Assert
+            Assert.Equal(output, expectedOutput);
+        }
 
-        //        public static TheoryData OutputElementHintData
-        //        {
-        //            get
-        //            {
-        //                // tagHelperType, expectedDescriptors
-        //                return new TheoryData<Type, TagHelperDescriptor[]>
-        //                {
-        //                    {
-        //                        typeof(MulitpleDescriptorTagHelperWithOutputElementHint),
-        //                        new[]
-        //                        {
-        //                            new TagHelperDescriptor
-        //                            {
-        //                                TagName = "a",
-        //                                TypeName = typeof(MulitpleDescriptorTagHelperWithOutputElementHint).FullName,
-        //                                AssemblyName = AssemblyName,
-        //                                DesignTimeDescriptor = new TagHelperDesignTimeDescriptor
-        //                                {
-        //                                    OutputElementHint = "div"
-        //                                }
-        //                            },
-        //                            new TagHelperDescriptor
-        //                            {
-        //                                TagName = "p",
-        //                                TypeName = typeof(MulitpleDescriptorTagHelperWithOutputElementHint).FullName,
-        //                                AssemblyName = AssemblyName,
-        //                                DesignTimeDescriptor = new TagHelperDesignTimeDescriptor
-        //                                {
-        //                                    OutputElementHint = "div"
-        //                                }
-        //                            }
-        //                        }
-        //                    },
-        //                    {
-        //                        typeof(InheritedOutputElementHintTagHelper),
-        //                        new[]
-        //                        {
-        //                            new TagHelperDescriptor
-        //                            {
-        //                                TagName = "inherited-output-element-hint",
-        //                                TypeName = typeof(InheritedOutputElementHintTagHelper).FullName,
-        //                                AssemblyName = AssemblyName,
-        //                                DesignTimeDescriptor = null
-        //                            }
-        //                        }
-        //                    },
-        //                    {
-        //                        typeof(OutputElementHintTagHelper),
-        //                        new[]
-        //                        {
-        //                            new TagHelperDescriptor
-        //                            {
-        //                                TagName = "output-element-hint",
-        //                                TypeName = typeof(OutputElementHintTagHelper).FullName,
-        //                                AssemblyName = AssemblyName,
-        //                                DesignTimeDescriptor = new TagHelperDesignTimeDescriptor
-        //                                {
-        //                                    OutputElementHint = "hinted-value"
-        //                                }
-        //                            }
-        //                        }
-        //                    },
-        //                    {
-        //                        typeof(OverriddenOutputElementHintTagHelper),
-        //                        new[]
-        //                        {
-        //                            new TagHelperDescriptor
-        //                            {
-        //                                TagName = "overridden-output-element-hint",
-        //                                TypeName = typeof(OverriddenOutputElementHintTagHelper).FullName,
-        //                                AssemblyName = AssemblyName,
-        //                                DesignTimeDescriptor = new TagHelperDesignTimeDescriptor
-        //                                {
-        //                                    OutputElementHint = "overridden"
-        //                                }
-        //                            }
-        //                        }
-        //                    },
-        //                };
-        //            }
-        //        }
+        public static TheoryData TagOutputHintData
+        {
+            get
+            {
+                // tagHelperType, expectedDescriptor
+                return new TheoryData<Type, TagHelperDescriptor>
+                {
+                    {
+                        typeof(MultipleDescriptorTagHelperWithOutputElementHint),
+                        ITagHelperDescriptorBuilder.Create(typeof(MultipleDescriptorTagHelperWithOutputElementHint).FullName, AssemblyName)
+                            .TagMatchingRule(builder => builder.RequireTagName("p"))
+                            .TagMatchingRule(builder => builder.RequireTagName("a"))
+                            .TagOutputHint("div")
+                            .Build()
+                    },
+                    {
+                        typeof(InheritedOutputElementHintTagHelper),
+                        ITagHelperDescriptorBuilder.Create(typeof(InheritedOutputElementHintTagHelper).FullName, AssemblyName)
+                            .TagMatchingRule(builder => builder.RequireTagName("inherited-output-element-hint"))
+                            .Build()
+                    },
+                    {
+                        typeof(OutputElementHintTagHelper),
+                        ITagHelperDescriptorBuilder.Create(typeof(OutputElementHintTagHelper).FullName, AssemblyName)
+                            .TagMatchingRule(builder => builder.RequireTagName("output-element-hint"))
+                            .TagOutputHint("hinted-value")
+                            .Build()
+                    },
+                    {
+                        typeof(OverriddenOutputElementHintTagHelper),
+                        ITagHelperDescriptorBuilder.Create(typeof(OverriddenOutputElementHintTagHelper).FullName, AssemblyName)
+                            .TagMatchingRule(builder => builder.RequireTagName("overridden-output-element-hint"))
+                            .TagOutputHint("overridden")
+                            .Build()
+                    },
+                };
+            }
+        }
 
-        //        [Theory]
-        //        [MemberData(nameof(OutputElementHintData))]
-        //        public void CreateDescriptor_CreatesDesignTimeDescriptorsWithOutputElementHint(
-        //            Type tagHelperType,
-        //            TagHelperDescriptor[] expectedDescriptors)
-        //        {
-        //            // Arrange
-        //            var errorSink = new ErrorSink();
-        //            var factory = new DefaultTagHelperDescriptorFactory(Compilation, designTime: true);
-        //            var typeSymbol = Compilation.GetTypeByMetadataName(tagHelperType.FullName);
+        [Theory]
+        [MemberData(nameof(TagOutputHintData))]
+        public void CreateDescriptor_CreatesDesignTimeDescriptorsWithOutputElementHint(
+            Type tagHelperType,
+            TagHelperDescriptor expectedDescriptor)
+        {
+            // Arrange
+            var factory = new DefaultTagHelperDescriptorFactory(Compilation, designTime: true);
+            var typeSymbol = Compilation.GetTypeByMetadataName(tagHelperType.FullName);
 
-        //            // Act
-        //            var descriptors = factory.CreateDescriptor(typeSymbol, errorSink);
+            // Act
+            var descriptor = factory.CreateDescriptor(typeSymbol);
 
-        //            // Assert
-        //            Assert.Empty(errorSink.Errors);
-
-        //            // We don't care about order. Mono returns reflected attributes differently so we need to ensure order
-        //            // doesn't matter by sorting.
-        //            descriptors = descriptors.OrderBy(descriptor => descriptor.TagName);
-
-        //            Assert.Equal(expectedDescriptors, descriptors, CaseSensitiveTagHelperDescriptorComparer.Default);
-        //        }
+            // Assert
+            Assert.Equal(expectedDescriptor, descriptor, CaseSensitiveTagHelperDescriptorComparer.Default);
+        }
 
         //        [Fact]
         //        public void CreateDescriptor_CapturesRemarksAndSummaryOnTagHelperClass()
