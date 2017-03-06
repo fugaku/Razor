@@ -2051,101 +2051,108 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
             Assert.Equal(expectedDescriptor, descriptor, CaseSensitiveTagHelperDescriptorComparer.Default);
         }
 
-        //        [Fact]
-        //        public void CreateDescriptor_CapturesRemarksAndSummaryOnTagHelperClass()
-        //        {
-        //            // Arrange
-        //            var errorSink = new ErrorSink();
-        //            var sytnaxTree = CSharpSyntaxTree.ParseText(@"
-        //using Microsoft.AspNetCore.Razor.TagHelpers;
+        [Fact]
+        public void CreateDescriptor_CapturesDocumentationOnTagHelperClass()
+        {
+            // Arrange
+            var errorSink = new ErrorSink();
+            var sytnaxTree = CSharpSyntaxTree.ParseText(@"
+        using Microsoft.AspNetCore.Razor.TagHelpers;
 
-        ///// <summary>
-        ///// The summary for <see cref=""DocumentedTagHelper""/>.
-        ///// </summary>
-        ///// <remarks>
-        ///// Inherits from <see cref=""TagHelper""/>.
-        ///// </remarks>
-        //[" + typeof(AspNetCore.Razor.TagHelpers.OutputElementHintAttribute).FullName + @"(""p"")]
-        //public class DocumentedTagHelper : " + typeof(AspNetCore.Razor.TagHelpers.TagHelper).Name + @"
-        //{
-        //}");
-        //            var compilation = TestCompilation.Create(sytnaxTree);
-        //            var factory = new DefaultTagHelperDescriptorFactory(compilation, designTime: true);
-        //            var typeSymbol = compilation.GetTypeByMetadataName("DocumentedTagHelper");
-        //            var expectedDescriptor = new TagHelperDesignTimeDescriptor()
-        //            {
-        //                OutputElementHint = "p",
-        //                Summary = "The summary for <see cref=\"T:DocumentedTagHelper\" />.",
-        //                Remarks = "Inherits from <see cref=\"T:Microsoft.AspNetCore.Razor.TagHelpers.TagHelper\" />.",
-        //            };
+        /// <summary>
+        /// The summary for <see cref=""DocumentedTagHelper""/>.
+        /// </summary>
+        /// <remarks>
+        /// Inherits from <see cref=""TagHelper""/>.
+        /// </remarks>
+        public class DocumentedTagHelper : " + typeof(AspNetCore.Razor.TagHelpers.TagHelper).Name + @"
+        {
+        }");
+            var compilation = TestCompilation.Create(sytnaxTree);
+            var factory = new DefaultTagHelperDescriptorFactory(compilation, designTime: true);
+            var typeSymbol = compilation.GetTypeByMetadataName("DocumentedTagHelper");
+            var expectedDocumentation = 
+@"<member name=""T:DocumentedTagHelper"">
+    <summary>
+    The summary for <see cref=""T:DocumentedTagHelper""/>.
+    </summary>
+    <remarks>
+    Inherits from <see cref=""T:Microsoft.AspNetCore.Razor.TagHelpers.TagHelper""/>.
+    </remarks>
+</member>
+";
+                
+            // Act
+            var descriptor = factory.CreateDescriptor(typeSymbol);
 
-        //            // Act
-        //            var descriptors = factory.CreateDescriptor(typeSymbol, errorSink);
+            // Assert
+            Assert.Equal(expectedDocumentation, descriptor.Documentation);
+        }
 
-        //            // Assert
-        //            Assert.Empty(errorSink.Errors);
-        //            var descriptor = Assert.Single(descriptors);
-        //            Assert.Equal(expectedDescriptor, descriptor.DesignTimeDescriptor, TagHelperDesignTimeDescriptorComparer.Default);
-        //        }
+        [Fact]
+        public void CreateDescriptor_CapturesDocumentationOnTagHelperProperties()
+        {
+            // Arrange
+            var errorSink = new ErrorSink();
+            var sytnaxTree = CSharpSyntaxTree.ParseText(@"
+        using System.Collections.Generic;
 
-        //        [Fact]
-        //        public void CreateDescriptor_CapturesRemarksAndSummaryOnTagHelperProperties()
-        //        {
-        //            // Arrange
-        //            var errorSink = new ErrorSink();
-        //            var sytnaxTree = CSharpSyntaxTree.ParseText(@"
-        //using System.Collections.Generic;
+        public class DocumentedTagHelper : " + typeof(AspNetCore.Razor.TagHelpers.TagHelper).FullName + @"
+        {
+            /// <summary>
+            /// This <see cref=""SummaryProperty""/> is of type <see cref=""string""/>.
+            /// </summary>
+            public string SummaryProperty { get; set; }
 
-        //public class DocumentedTagHelper : " + typeof(AspNetCore.Razor.TagHelpers.TagHelper).FullName + @"
-        //{
-        //    /// <summary>
-        //    /// This <see cref=""SummaryProperty""/> is of type <see cref=""string""/>.
-        //    /// </summary>
-        //    public string SummaryProperty { get; set; }
+            /// <remarks>
+            /// The <see cref=""SummaryProperty""/> may be <c>null</c>.
+            /// </remarks>
+            public int RemarksProperty { get; set; }
 
-        //    /// <remarks>
-        //    /// The <see cref=""SummaryProperty""/> may be <c>null</c>.
-        //    /// </remarks>
-        //    public int RemarksProperty { get; set; }
+            /// <summary>
+            /// This is a complex <see cref=""List{bool}""/>.
+            /// </summary>
+            /// <remarks>
+            /// <see cref=""SummaryProperty""/><see cref=""RemarksProperty""/>
+            /// </remarks>
+            public List<bool> RemarksAndSummaryProperty { get; set; }
+        }");
+            var compilation = TestCompilation.Create(sytnaxTree);
+            var factory = new DefaultTagHelperDescriptorFactory(compilation, designTime: true);
+            var typeSymbol = compilation.GetTypeByMetadataName("DocumentedTagHelper");
+            var expectedDocumentations = new[]
+            {
 
-        //    /// <summary>
-        //    /// This is a complex <see cref=""List{bool}""/>.
-        //    /// </summary>
-        //    /// <remarks>
-        //    /// <see cref=""SummaryProperty""/><see cref=""RemarksProperty""/>
-        //    /// </remarks>
-        //    public List<bool> RemarksAndSummaryProperty { get; set; }
-        //}");
-        //            var compilation = TestCompilation.Create(sytnaxTree);
-        //            var factory = new DefaultTagHelperDescriptorFactory(compilation, designTime: true);
-        //            var typeSymbol = compilation.GetTypeByMetadataName("DocumentedTagHelper");
-        //            var expectedDescriptors = new[]
-        //            {
-        //                new TagHelperAttributeDesignTimeDescriptor()
-        //                {
-        //                    Summary = "This <see cref=\"P:DocumentedTagHelper.SummaryProperty\" /> is of type <see cref=\"T:System.String\" />.",
-        //                },
-        //                new TagHelperAttributeDesignTimeDescriptor()
-        //                {
-        //                    Remarks = "The <see cref=\"P:DocumentedTagHelper.SummaryProperty\" /> may be <c>null</c>.",
-        //                },
-        //                new TagHelperAttributeDesignTimeDescriptor()
-        //                {
-        //                    Summary = "This is a complex <see cref=\"T:System.Collections.Generic.List`1\" />.",
-        //                    Remarks = "<see cref=\"P:DocumentedTagHelper.SummaryProperty\" /><see cref=\"P:DocumentedTagHelper.RemarksProperty\" />",
-        //                }
-        //            };
+@"<member name=""P:DocumentedTagHelper.SummaryProperty"">
+    <summary>
+    This <see cref=""P:DocumentedTagHelper.SummaryProperty""/> is of type <see cref=""T:System.String""/>.
+    </summary>
+</member>
+",
+@"<member name=""P:DocumentedTagHelper.RemarksProperty"">
+    <remarks>
+    The <see cref=""P:DocumentedTagHelper.SummaryProperty""/> may be <c>null</c>.
+    </remarks>
+</member>
+",
+@"<member name=""P:DocumentedTagHelper.RemarksAndSummaryProperty"">
+    <summary>
+    This is a complex <see cref=""T:System.Collections.Generic.List`1""/>.
+    </summary>
+    <remarks>
+    <see cref=""P:DocumentedTagHelper.SummaryProperty""/><see cref=""P:DocumentedTagHelper.RemarksProperty""/>
+    </remarks>
+</member>
+",
+                    };
 
-        //            // Act
-        //            var descriptors = factory.CreateDescriptor(typeSymbol, errorSink);
+            // Act
+            var descriptor = factory.CreateDescriptor(typeSymbol);
 
-        //            // Assert
-        //            Assert.Empty(errorSink.Errors);
-        //            var attributeDescriptors = descriptors
-        //                .SelectMany(descriptor => descriptor.BoundAttributes)
-        //                .Select(descriptor => descriptor.DesignTimeDescriptor);
-        //            Assert.Equal(expectedDescriptors, attributeDescriptors, TagHelperAttributeDesignTimeDescriptorComparer.Default);
-        //        }
+            // Assert
+            var documentations = descriptor.BoundAttributes.Select(boundAttribute => boundAttribute.Documentation);
+            Assert.Equal(expectedDocumentations, documentations);
+        }
 
         private static TheoryData<string, string[]> GetInvalidNameOrPrefixData(
             Func<string, string, string> onNameError,
