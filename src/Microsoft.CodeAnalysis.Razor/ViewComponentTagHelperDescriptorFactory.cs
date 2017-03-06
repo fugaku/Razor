@@ -55,7 +55,7 @@ namespace Microsoft.CodeAnalysis.Razor
         {
             foreach (var parameter in methodParameters)
             {
-                if (GetIndexerValueTypeName(parameter) != null)
+                if (GetIndexerValueTypeName(parameter) == null)
                 {
                     // Set required attributes only for non-indexer attributes. Indexer attributes can't be required attributes
                     // because there are two ways of setting values for the attribute.

@@ -27,13 +27,12 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces.Test.Comparers
                 return true;
             }
 
-            Assert.True(base.Equals(descriptorX, descriptorY));
-
             // Normal comparer doesn't care about the case, required attribute order, allowed children order,
             // attributes or prefixes. In tests we do.
             Assert.Equal(descriptorX.TagOutputHint, descriptorY.TagOutputHint);
             Assert.Equal(descriptorX.BoundAttributes, descriptorY.BoundAttributes, CaseSensitiveBoundAttributeDescriptorComparer.Default);
             Assert.Equal(descriptorX.TagMatchingRules, descriptorY.TagMatchingRules, CaseSensitiveTagMatchingRuleComparer.Default);
+            Assert.True(base.Equals(descriptorX, descriptorY));
 
             if (descriptorX.AllowedChildTags != descriptorY.AllowedChildTags)
             {

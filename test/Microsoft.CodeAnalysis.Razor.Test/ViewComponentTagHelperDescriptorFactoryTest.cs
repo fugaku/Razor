@@ -1,201 +1,148 @@
-//// Copyright (c) .NET Foundation. All rights reserved.
-//// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-//using System.Collections.Generic;
-//using System.Reflection;
-//using Microsoft.AspNetCore.Razor.Evolution;
-//using Microsoft.CodeAnalysis.Razor.Workspaces.Test;
-//using Microsoft.CodeAnalysis.Razor.Workspaces.Test.Comparers;
-//using Xunit;
+using Microsoft.AspNetCore.Razor.Evolution;
+using Microsoft.CodeAnalysis.Razor.Workspaces.Test.Comparers;
+using System.Collections.Generic;
+using System.Reflection;
+using Xunit;
 
-//namespace Microsoft.CodeAnalysis.Razor.Workspaces
-//{
-//    public class ViewComponentTagHelperDescriptorFactoryTest
-//    {
-//        [Fact]
-//        public void CreateDescriptor_UnderstandsStringParameters()
-//        {
-//            // Arrange
-//            var testCompilation = TestCompilation.Create();
-//            var viewComponent = testCompilation.GetTypeByMetadataName(typeof(StringParameterViewComponent).FullName);
-//            var factory = new ViewComponentTagHelperDescriptorFactory(testCompilation);
-//            var expectedDescriptor = new TagHelperDescriptor
-//            {
-//                TagName = "vc:string-parameter",
-//                TypeName = "__Generated__StringParameterViewComponentTagHelper",
-//                AssemblyName = typeof(StringParameterViewComponent).GetTypeInfo().Assembly.GetName().Name,
-//                Attributes = new List<BoundAttributeDescriptor>
-//                {
-//                    new BoundAttributeDescriptor
-//                    {
-//                        Name = "foo",
-//                        PropertyName = "foo",
-//                        TypeName = typeof(string).FullName
-//                    },
-//                    new BoundAttributeDescriptor
-//                    {
-//                        Name = "bar",
-//                        PropertyName = "bar",
-//                        TypeName = typeof(string).FullName
-//                    }
-//                },
-//                RequiredAttributes = new List<RequiredAttributeDescriptor>
-//                {
-//                    new RequiredAttributeDescriptor
-//                    {
-//                        Name = "foo"
-//                    },
-//                    new RequiredAttributeDescriptor
-//                    {
-//                        Name = "bar"
-//                    }
-//                }
-//            };
-//            expectedDescriptor.Metadata.Add(ViewComponentTypes.ViewComponentNameKey, "StringParameter");
+namespace Microsoft.CodeAnalysis.Razor.Workspaces
+{
+    public class ViewComponentTagHelperDescriptorFactoryTest
+    {
+        [Fact]
+        public void CreateDescriptor_UnderstandsStringParameters()
+        {
+            // Arrange
+            var testCompilation = TestCompilation.Create();
+            var viewComponent = testCompilation.GetTypeByMetadataName(typeof(StringParameterViewComponent).FullName);
+            var factory = new ViewComponentTagHelperDescriptorFactory(testCompilation);
+            var expectedDescriptor = ITagHelperDescriptorBuilder.Create(
+                "__Generated__StringParameterViewComponentTagHelper",
+                typeof(StringParameterViewComponent).GetTypeInfo().Assembly.GetName().Name)
+                .TagMatchingRule(rule =>
+                    rule
+                    .RequireTagName("vc:string-parameter")
+                    .RequireAttribute(attribute => attribute.Name("foo"))
+                    .RequireAttribute(attribute => attribute.Name("bar")))
+                .BindAttribute(attribute =>
+                    attribute
+                    .Name("foo")
+                    .PropertyName("foo")
+                    .TypeName(typeof(string).FullName))
+                .BindAttribute(attribute =>
+                    attribute
+                    .Name("bar")
+                    .PropertyName("bar")
+                    .TypeName(typeof(string).FullName))
+                .AddMetadata(ViewComponentTypes.ViewComponentNameKey, "StringParameter")
+                .Build();
 
-//            // Act
-//            var descriptor = factory.CreateDescriptor(viewComponent);
+            // Act
+            var descriptor = factory.CreateDescriptor(viewComponent);
 
-//            // Assert
-//            Assert.Equal(expectedDescriptor, descriptor, CaseSensitiveTagHelperDescriptorComparer.Default);
-//        }
+            // Assert
+            Assert.Equal(expectedDescriptor, descriptor, CaseSensitiveTagHelperDescriptorComparer.Default);
+        }
 
-//        [Fact]
-//        public void CreateDescriptor_UnderstandsVariousParameterTypes()
-//        {
-//            // Arrange
-//            var testCompilation = TestCompilation.Create();
-//            var viewComponent = testCompilation.GetTypeByMetadataName(typeof(VariousParameterViewComponent).FullName);
-//            var factory = new ViewComponentTagHelperDescriptorFactory(testCompilation);
-//            var expectedDescriptor = new TagHelperDescriptor
-//            {
-//                TagName = "vc:various-parameter",
-//                TypeName = "__Generated__VariousParameterViewComponentTagHelper",
-//                AssemblyName = typeof(VariousParameterViewComponent).GetTypeInfo().Assembly.GetName().Name,
-//                Attributes = new List<BoundAttributeDescriptor>
-//                {
-//                    new BoundAttributeDescriptor
-//                    {
-//                        Name = "test-enum",
-//                        PropertyName = "testEnum",
-//                        TypeName = typeof(VariousParameterViewComponent).FullName + "." + nameof(VariousParameterViewComponent.TestEnum),
-//                        IsEnum = true
-//                    },
+        [Fact]
+        public void CreateDescriptor_UnderstandsVariousParameterTypes()
+        {
+            // Arrange
+            var testCompilation = TestCompilation.Create();
+            var viewComponent = testCompilation.GetTypeByMetadataName(typeof(VariousParameterViewComponent).FullName);
+            var factory = new ViewComponentTagHelperDescriptorFactory(testCompilation);
+            var expectedDescriptor = ITagHelperDescriptorBuilder.Create(
+                "__Generated__VariousParameterViewComponentTagHelper",
+                typeof(VariousParameterViewComponent).GetTypeInfo().Assembly.GetName().Name)
+                .TagMatchingRule(rule =>
+                    rule
+                    .RequireTagName("vc:various-parameter")
+                    .RequireAttribute(attribute => attribute.Name("test-enum"))
+                    .RequireAttribute(attribute => attribute.Name("test-string"))
+                    .RequireAttribute(attribute => attribute.Name("baz")))
+                .BindAttribute(attribute =>
+                    attribute
+                    .Name("test-enum")
+                    .PropertyName("testEnum")
+                    .TypeName(typeof(VariousParameterViewComponent).FullName + "." + nameof(VariousParameterViewComponent.TestEnum))
+                    .AsEnum())
+                .BindAttribute(attribute =>
+                    attribute
+                    .Name("test-string")
+                    .PropertyName("testString")
+                    .TypeName(typeof(string).FullName))
+                .BindAttribute(attribute =>
+                    attribute
+                    .Name("baz")
+                    .PropertyName("baz")
+                    .TypeName(typeof(int).FullName))
+                .AddMetadata(ViewComponentTypes.ViewComponentNameKey, "VariousParameter")
+                .Build();
 
-//                    new BoundAttributeDescriptor
-//                    {
-//                        Name = "test-string",
-//                        PropertyName = "testString",
-//                        TypeName = typeof(string).FullName
-//                    },
+            // Act
+            var descriptor = factory.CreateDescriptor(viewComponent);
 
-//                    new BoundAttributeDescriptor
-//                    {
-//                        Name = "baz",
-//                        PropertyName = "baz",
-//                        TypeName = typeof(int).FullName
-//                    }
-//                },
-//                RequiredAttributes = new List<RequiredAttributeDescriptor>
-//                {
-//                    new RequiredAttributeDescriptor
-//                    {
-//                        Name = "test-enum"
-//                    },
+            // Assert
+            Assert.Equal(expectedDescriptor, descriptor, CaseSensitiveTagHelperDescriptorComparer.Default);
+        }
 
-//                    new RequiredAttributeDescriptor
-//                    {
-//                        Name = "test-string"
-//                    },
+        [Fact]
+        public void CreateDescriptor_UnderstandsGenericParameters()
+        {
+            // Arrange
+            var testCompilation = TestCompilation.Create();
+            var viewComponent = testCompilation.GetTypeByMetadataName(typeof(GenericParameterViewComponent).FullName);
+            var factory = new ViewComponentTagHelperDescriptorFactory(testCompilation);
+            var expectedDescriptor = ITagHelperDescriptorBuilder.Create(
+                "__Generated__GenericParameterViewComponentTagHelper",
+                typeof(GenericParameterViewComponent).GetTypeInfo().Assembly.GetName().Name)
+                .TagMatchingRule(rule =>
+                    rule
+                    .RequireTagName("vc:generic-parameter")
+                    .RequireAttribute(attribute => attribute.Name("foo")))
+                .BindAttribute(attribute =>
+                    attribute
+                    .Name("foo")
+                    .PropertyName("Foo")
+                    .TypeName("System.Collections.Generic.List<System.String>"))
+                .BindAttribute(attribute =>
+                    attribute
+                    .Name("bar")
+                    .PropertyName("Bar")
+                    .TypeName("System.Collections.Generic.Dictionary<System.String, System.Int32>")
+                    .AsDictionary("bar-", typeof(int).FullName))
+                .AddMetadata(ViewComponentTypes.ViewComponentNameKey, "GenericParameter")
+                .Build();
 
-//                    new RequiredAttributeDescriptor
-//                    {
-//                        Name = "baz"
-//                    }
-//                }
-//            };
-//            expectedDescriptor.Metadata.Add(ViewComponentTypes.ViewComponentNameKey, "VariousParameter");
+            // Act
+            var descriptor = factory.CreateDescriptor(viewComponent);
 
-//            // Act
-//            var descriptor = factory.CreateDescriptor(viewComponent);
+            // Assert
+            Assert.Equal(expectedDescriptor, descriptor, CaseSensitiveTagHelperDescriptorComparer.Default);
+        }
+    }
 
-//            // Assert
-//            Assert.Equal(expectedDescriptor, descriptor, CaseSensitiveTagHelperDescriptorComparer.Default);
-//        }
+    public class StringParameterViewComponent
+    {
+        public string Invoke(string foo, string bar) => null;
+    }
 
-//        [Fact]
-//        public void CreateDescriptor_UnderstandsGenericParameters()
-//        {
-//            // Arrange
-//            var testCompilation = TestCompilation.Create();
-//            var viewComponent = testCompilation.GetTypeByMetadataName(typeof(GenericParameterViewComponent).FullName);
-//            var factory = new ViewComponentTagHelperDescriptorFactory(testCompilation);
-//            var expectedDescriptor = new TagHelperDescriptor
-//            {
-//                TagName = "vc:generic-parameter",
-//                TypeName = "__Generated__GenericParameterViewComponentTagHelper",
-//                AssemblyName = typeof(GenericParameterViewComponent).GetTypeInfo().Assembly.GetName().Name,
-//                Attributes = new List<BoundAttributeDescriptor>
-//                {
-//                    new BoundAttributeDescriptor
-//                    {
-//                        Name = "foo",
-//                        PropertyName = "Foo",
-//                        TypeName = "System.Collections.Generic.List<System.String>"
-//                    },
+    public class VariousParameterViewComponent
+    {
+        public string Invoke(TestEnum testEnum, string testString, int baz = 5) => null;
 
-//                    new BoundAttributeDescriptor
-//                    {
-//                        Name = "bar",
-//                        PropertyName = "Bar",
-//                        TypeName = "System.Collections.Generic.Dictionary<System.String, System.Int32>"
-//                    },
+        public enum TestEnum
+        {
+            A = 1,
+            B = 2,
+            C = 3
+        }
+    }
 
-//                    new BoundAttributeDescriptor
-//                    {
-//                        Name = "bar-",
-//                        PropertyName = "Bar",
-//                        TypeName = typeof(int).FullName,
-//                        IsIndexer = true
-//                    }
-//                },
-//                RequiredAttributes = new List<RequiredAttributeDescriptor>
-//                {
-//                    new RequiredAttributeDescriptor
-//                    {
-//                        Name = "foo"
-//                    }
-//                }
-//            };
-//            expectedDescriptor.Metadata.Add(ViewComponentTypes.ViewComponentNameKey, "GenericParameter");
-
-//            // Act
-//            var descriptor = factory.CreateDescriptor(viewComponent);
-
-//            // Assert
-//            Assert.Equal(expectedDescriptor, descriptor, CaseSensitiveTagHelperDescriptorComparer.Default);
-//        }
-//    }
-
-//    public class StringParameterViewComponent
-//    {
-//        public string Invoke(string foo, string bar) => null;
-//    }
-
-//    public class VariousParameterViewComponent
-//    {
-//        public string Invoke(TestEnum testEnum, string testString, int baz = 5) => null;
-
-//        public enum TestEnum
-//        {
-//            A = 1,
-//            B = 2,
-//            C = 3
-//        }
-//    }
-
-//    public class GenericParameterViewComponent
-//    {
-//        public string Invoke(List<string> Foo, Dictionary<string, int> Bar) => null;
-//    }
-//}
+    public class GenericParameterViewComponent
+    {
+        public string Invoke(List<string> Foo, Dictionary<string, int> Bar) => null;
+    }
+}

@@ -1,16 +1,16 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Microsoft.AspNetCore.Razor.Evolution;
 using Microsoft.AspNetCore.Razor.Evolution.Legacy;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Razor.Workspaces.Test;
 using Microsoft.CodeAnalysis.Razor.Workspaces.Test.Comparers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Xunit;
 
 namespace Microsoft.CodeAnalysis.Razor.Workspaces
@@ -1378,7 +1378,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                 {
                     {
                         typeof(InvalidBoundAttribute),
-                        new[] 
+                        new[]
                         {
                             ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(InvalidBoundAttribute).FullName)
                                 .Name("data-something")
@@ -1386,7 +1386,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .TypeName(typeof(string).FullName)
                                 .AddDiagnostic(
                                     RazorDiagnostic.Create(
-                                        dataDashDescriptor, 
+                                        dataDashDescriptor,
                                         new SourceSpan(SourceLocation.Undefined, contentLength: 0),
                                         typeof(InvalidBoundAttribute).FullName,
                                         nameof(InvalidBoundAttribute.DataSomething),
@@ -2071,7 +2071,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
             var compilation = TestCompilation.Create(sytnaxTree);
             var factory = new DefaultTagHelperDescriptorFactory(compilation, designTime: true);
             var typeSymbol = compilation.GetTypeByMetadataName("DocumentedTagHelper");
-            var expectedDocumentation = 
+            var expectedDocumentation =
 @"<member name=""T:DocumentedTagHelper"">
     <summary>
     The summary for <see cref=""T:DocumentedTagHelper""/>.
@@ -2081,7 +2081,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
     </remarks>
 </member>
 ";
-                
+
             // Act
             var descriptor = factory.CreateDescriptor(typeSymbol);
 
@@ -2304,7 +2304,8 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
             {
                 foreach (var ruleBuilder in ruleBuilders)
                 {
-                    builder.TagMatchingRule(innerRuleBuilder => {
+                    builder.TagMatchingRule(innerRuleBuilder =>
+                    {
                         innerRuleBuilder.RequireTagName(tagName);
                         ruleBuilder(innerRuleBuilder);
                     });

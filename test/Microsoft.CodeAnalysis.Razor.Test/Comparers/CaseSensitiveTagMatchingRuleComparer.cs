@@ -26,10 +26,10 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces.Test.Comparers
                 return true;
             }
 
-            Assert.True(base.Equals(ruleX, ruleY));
             Assert.Equal(ruleX.TagName, ruleY.TagName);
             Assert.Equal(ruleX.ParentTag, ruleY.ParentTag);
             Assert.Equal(ruleX.Attributes, ruleY.Attributes, CaseSensitiveRequiredAttributeDescriptorComparer.Default);
+            Assert.True(base.Equals(ruleX, ruleY));
 
             return true;
         }

@@ -24,9 +24,9 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces.Test.Comparers
                 return true;
             }
 
-            Assert.True(base.Equals(descriptorX, descriptorY));
             Assert.Equal(descriptorX.Name, descriptorY.Name);
             Assert.Equal(descriptorX.IndexerNamePrefix, descriptorY.IndexerNamePrefix);
+            Assert.True(base.Equals(descriptorX, descriptorY));
 
             return true;
         }
