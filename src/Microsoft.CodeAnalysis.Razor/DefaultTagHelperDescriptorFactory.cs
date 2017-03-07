@@ -275,17 +275,7 @@ namespace Microsoft.CodeAnalysis.Razor
             else if (hasExplicitName && !IsPotentialDictionaryProperty(property))
             {
                 // Specified HtmlAttributeNameAttribute.Name though property has no public setter.
-                var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                    "TODO: Track IDS",
-                    () => Resources.TagHelperDescriptorFactory_InvalidAttributeNameNotNullOrEmpty,
-                    RazorDiagnosticSeverity.Error);
-                var diagnostic = RazorDiagnostic.Create(
-                    diagnosticDescriptor,
-                    new SourceSpan(SourceLocation.Undefined, contentLength: 0),
-                    GetFullName(containingType),
-                    property.Name,
-                    TagHelperTypes.HtmlAttributeNameAttribute,
-                    TagHelperTypes.HtmlAttributeName.Name);
+                var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidAttributeNameNullOrEmpty(GetFullName(containingType), property.Name);
                 builder.AddDiagnostic(diagnostic);
             }
 
@@ -341,18 +331,7 @@ namespace Microsoft.CodeAnalysis.Razor
                 {
                     // DictionaryAttributePrefix is not supported unless associated with an
                     // IDictionary<string, TValue> property.
-                    var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                        "TODO: Track IDS",
-                        () => Resources.TagHelperDescriptorFactory_InvalidAttributePrefixNotNull,
-                        RazorDiagnosticSeverity.Error);
-                    var diagnostic = RazorDiagnostic.Create(
-                        diagnosticDescriptor,
-                        new SourceSpan(SourceLocation.Undefined, contentLength: 0),
-                        GetFullName(containingType),
-                        property.Name,
-                        TagHelperTypes.HtmlAttributeNameAttribute,
-                        TagHelperTypes.HtmlAttributeName.DictionaryAttributePrefix,
-                        "IDictionary<string, TValue>");
+                    var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(GetFullName(containingType), property.Name);
                     builder.AddDiagnostic(diagnostic);
                 }
 
@@ -362,18 +341,7 @@ namespace Microsoft.CodeAnalysis.Razor
             {
                 // Must set DictionaryAttributePrefix when using HtmlAttributeNameAttribute with a dictionary property
                 // that lacks a public setter.
-                var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                    "TODO: Track IDS",
-                    () => Resources.TagHelperDescriptorFactory_InvalidAttributePrefixNull,
-                    RazorDiagnosticSeverity.Error);
-                var diagnostic = RazorDiagnostic.Create(
-                    diagnosticDescriptor,
-                    new SourceSpan(SourceLocation.Undefined, contentLength: 0),
-                    GetFullName(containingType),
-                    property.Name,
-                    TagHelperTypes.HtmlAttributeNameAttribute,
-                    TagHelperTypes.HtmlAttributeName.DictionaryAttributePrefix,
-                    "IDictionary<string, TValue>");
+                var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNull(GetFullName(containingType), property.Name);
                 builder.AddDiagnostic(diagnostic);
 
                 return;
@@ -604,11 +572,7 @@ namespace Microsoft.CodeAnalysis.Razor
                             }
                             else if (!AtEnd)
                             {
-                                var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                                    "TODO: Track IDS",
-                                    () => Resources.TagHelperDescriptorFactory_InvalidRequiredAttributeCharacter,
-                                    RazorDiagnosticSeverity.Error);
-                                var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), Current, _requiredAttributes);
+                                var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeCharacter(Current, _requiredAttributes);
                                 attributeBuilder.AddDiagnostic(diagnostic);
                                 successfulParse = false;
                                 return;
@@ -688,11 +652,7 @@ namespace Microsoft.CodeAnalysis.Razor
                         }
                         else if (op != '=') // We're at an incomplete operator (ex: [foo^]
                         {
-                            var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                                "TODO: Track IDS",
-                                () => Resources.TagHelperDescriptorFactory_PartialRequiredAttributeOperator,
-                                RazorDiagnosticSeverity.Error);
-                            var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), _requiredAttributes, op);
+                            var diagnostic = DiagnosticFactory.CreateTagHelper_PartialRequiredAttributeOperator(op, _requiredAttributes);
                             builder.AddDiagnostic(diagnostic);
 
                             return false;
@@ -700,11 +660,7 @@ namespace Microsoft.CodeAnalysis.Razor
                     }
                     else if (!At(']'))
                     {
-                        var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                            "TODO: Track IDS",
-                            () => Resources.TagHelperDescriptorFactory_InvalidRequiredAttributeOperator,
-                            RazorDiagnosticSeverity.Error);
-                        var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), Current, _requiredAttributes);
+                        var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeOperator(Current, _requiredAttributes);
                         builder.AddDiagnostic(diagnostic);
 
                         return false;
@@ -730,11 +686,7 @@ namespace Microsoft.CodeAnalysis.Razor
                         valueEnd = _requiredAttributes.IndexOf(quote, _index);
                         if (valueEnd == -1)
                         {
-                            var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                                "TODO: Track IDS",
-                                () => Resources.TagHelperDescriptorFactory_InvalidRequiredAttributeMismatchedQuotes,
-                            RazorDiagnosticSeverity.Error);
-                            var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), _requiredAttributes, quote);
+                            var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeMismatchedQuotes(quote, _requiredAttributes);
                             builder.AddDiagnostic(diagnostic);
 
                             return false;
@@ -800,20 +752,12 @@ namespace Microsoft.CodeAnalysis.Razor
                     }
                     else if (AtEnd)
                     {
-                        var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                            "TODO: Track IDS",
-                            () => Resources.TagHelperDescriptorFactory_CouldNotFindMatchingEndBrace,
-                            RazorDiagnosticSeverity.Error);
-                        var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), _requiredAttributes);
+                        var diagnostic = DiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace(_requiredAttributes);
                         attributeBuilder.AddDiagnostic(diagnostic);
                     }
                     else
                     {
-                        var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                            "TODO: Track IDS",
-                            () => Resources.TagHelperDescriptorFactory_InvalidRequiredAttributeCharacter,
-                            RazorDiagnosticSeverity.Error);
-                        var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), Current, _requiredAttributes);
+                        var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeCharacter(Current, _requiredAttributes);
                         attributeBuilder.AddDiagnostic(diagnostic);
                     }
 
@@ -824,11 +768,7 @@ namespace Microsoft.CodeAnalysis.Razor
                 {
                     if (AtEnd)
                     {
-                        var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                            "TODO: Track IDS",
-                            () => Resources.TagHelperDescriptorFactory_CouldNotFindMatchingEndBrace,
-                            RazorDiagnosticSeverity.Error);
-                        var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), _requiredAttributes);
+                        var diagnostic = DiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace(_requiredAttributes);
                         builder.AddDiagnostic(diagnostic);
 
                         return false;
