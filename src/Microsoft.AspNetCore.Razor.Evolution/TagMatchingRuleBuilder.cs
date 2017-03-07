@@ -90,11 +90,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
         {
             if (string.IsNullOrWhiteSpace(_tagName))
             {
-                var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                    "TODO: Track IDS",
-                    () => "{0} name cannot be null or whitespace.",
-                    RazorDiagnosticSeverity.Error);
-                var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), "Tag");
+                var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidTargetedTagNameNullOrWhitespace();
 
                 yield return diagnostic;
             }
@@ -104,17 +100,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
                 {
                     if (char.IsWhiteSpace(character) || InvalidNonWhitespaceTagNameCharacters.Contains(character))
                     {
-                        var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                            "TODO: Track IDS",
-                            () => "Tag helpers cannot target {0} name '{1}' because it contains a '{2}' character.",
-                            RazorDiagnosticSeverity.Error);
-
-                        var diagnostic = RazorDiagnostic.Create(
-                            diagnosticDescriptor, 
-                            new SourceSpan(SourceLocation.Undefined, contentLength: 0), 
-                            "Tag".ToLower(), 
-                            _tagName, 
-                            character);
+                        var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidTargetedTagName(_tagName, character);
 
                         yield return diagnostic;
                     }
@@ -125,11 +111,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
             {
                 if (string.IsNullOrWhiteSpace(_parentTag))
                 {
-                    var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                        "TODO: Track IDS",
-                        () => "{0} name cannot be null or whitespace.",
-                        RazorDiagnosticSeverity.Error);
-                    var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), "Parent Tag");
+                    var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidTargetedParentTagNameNullOrWhitespace();
 
                     yield return diagnostic;
                 }
@@ -139,17 +121,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
                     {
                         if (char.IsWhiteSpace(character) || InvalidNonWhitespaceTagNameCharacters.Contains(character))
                         {
-                            var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                                "TODO: Track IDS",
-                                () => "Tag helpers cannot target {0} name '{1}' because it contains a '{2}' character.",
-                                RazorDiagnosticSeverity.Error);
-
-                            var diagnostic = RazorDiagnostic.Create(
-                                diagnosticDescriptor, 
-                                new SourceSpan(SourceLocation.Undefined, contentLength: 0), 
-                                "Parent Tag".ToLower(), 
-                                _parentTag, 
-                                character);
+                            var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidTargetedParentTagName(_parentTag, character);
 
                             yield return diagnostic;
                         }

@@ -31,8 +31,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution.Legacy
         /// <param name="tagMode">HTML syntax of the element in the Razor source.</param>
         /// <param name="start">Starting location of the <see cref="TagHelperBlock"/>.</param>
         /// <param name="attributes">Attributes of the <see cref="TagHelperBlock"/>.</param>
-        /// <param name="descriptors">The <see cref="TagHelperDescriptor"/>s associated with the current HTML
-        /// tag.</param>
+        /// <param name="bindingResult"></param>
         public TagHelperBlockBuilder(
             string tagName,
             TagMode tagMode,

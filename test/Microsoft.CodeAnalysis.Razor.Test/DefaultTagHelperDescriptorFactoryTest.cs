@@ -36,7 +36,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("name")
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("name,"))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("name,"))
                                 .Build(),
                         }
                     },
@@ -46,7 +46,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name(string.Empty)
-                                .AddDiagnostic(error(Resources.HtmlTargetElementAttribute_NameCannotBeNullOrWhitespace("Attribute")))
+                                .AddDiagnostic(AspNetCore.Razor.Evolution.RazorDiagnosticFactory.CreateTagHelper_InvalidTargetedAttributeNameNullOrWhitespace())
                                 .Build(),
                         }
                     },
@@ -56,7 +56,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("n@me")
-                                .AddDiagnostic(error(Resources.HtmlTargetElementAttribute_InvalidName("attribute", "n@me", '@')))
+                                .AddDiagnostic(AspNetCore.Razor.Evolution.RazorDiagnosticFactory.CreateTagHelper_InvalidTargetedAttributeName("n@me", '@'))
                                 .Build(),
                         }
                     },
@@ -66,7 +66,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("name")
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeCharacter('e', "name extra"))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeCharacter('e', "name extra"))
                                 .Build(),
                         }
                     },
@@ -76,7 +76,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("[")
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[[ "))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[[ "))
                                 .Build(),
                         }
                     },
@@ -86,7 +86,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("")
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[ "))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[ "))
                                 .Build(),
                         }
                     },
@@ -97,7 +97,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("name")
                                 .ValueComparisonMode(RequiredAttributeDescriptor.ValueComparisonMode.FullMatch)
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeMismatchedQuotes('\'', "[name='unended]"))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeMismatchedQuotes('\'', "[name='unended]"))
                                 .Build(),
                         }
                     },
@@ -108,7 +108,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("name")
                                 .ValueComparisonMode(RequiredAttributeDescriptor.ValueComparisonMode.FullMatch)
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeMismatchedQuotes('\'', "[name='unended"))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeMismatchedQuotes('\'', "[name='unended"))
                                 .Build(),
                         }
                     },
@@ -118,7 +118,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("name")
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[name"))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[name"))
                                 .Build(),
                         }
                     },
@@ -128,7 +128,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name(string.Empty)
-                                .AddDiagnostic(error(Resources.HtmlTargetElementAttribute_NameCannotBeNullOrWhitespace("Attribute")))
+                                .AddDiagnostic(AspNetCore.Razor.Evolution.RazorDiagnosticFactory.CreateTagHelper_InvalidTargetedAttributeNameNullOrWhitespace())
                                 .Build(),
                         }
                     },
@@ -138,7 +138,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("n@me")
-                                .AddDiagnostic(error(Resources.HtmlTargetElementAttribute_InvalidName("attribute", "n@me", '@')))
+                                .AddDiagnostic(AspNetCore.Razor.Evolution.RazorDiagnosticFactory.CreateTagHelper_InvalidTargetedAttributeName("n@me", '@'))
                                 .Build(),
                         }
                     },
@@ -148,7 +148,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("name@")
-                                .AddDiagnostic(error(Resources.HtmlTargetElementAttribute_InvalidName("attribute", "name@", '@')))
+                                .AddDiagnostic(AspNetCore.Razor.Evolution.RazorDiagnosticFactory.CreateTagHelper_InvalidTargetedAttributeName("name@", '@'))
                                 .Build(),
                         }
                     },
@@ -158,7 +158,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("name")
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_PartialRequiredAttributeOperator('^', "[name^]"))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_PartialRequiredAttributeOperator('^', "[name^]"))
                                 .Build(),
                         }
                     },
@@ -170,7 +170,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .Name("name")
                                 .Value("value")
                                 .ValueComparisonMode(RequiredAttributeDescriptor.ValueComparisonMode.FullMatch)
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[name='value'"))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[name='value'"))
                                 .Build(),
                         }
                     },
@@ -180,7 +180,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("name")
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[name "))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[name "))
                                 .Build(),
                         }
                     },
@@ -190,7 +190,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                         {
                             RequiredAttributeDescriptorBuilder.Create()
                                 .Name("name")
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeOperator('e', "[name extra]"))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeOperator('e', "[name extra]"))
                                 .Build(),
                         }
                     },
@@ -202,7 +202,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .Name("name")
                                 .Value("value")
                                 .ValueComparisonMode(RequiredAttributeDescriptor.ValueComparisonMode.FullMatch)
-                                .AddDiagnostic(DiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[name=value "))
+                                .AddDiagnostic(RazorDiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace("[name=value "))
                                 .Build(),
                         }
                     },
@@ -1284,9 +1284,8 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
             get
             {
                 Func<string, string, string> onNameError =
-                    (invalidText, invalidCharacter) => $"Tag helpers cannot target tag name '{ invalidText }' " +
-                        $"because it contains a '{ invalidCharacter }' character.";
-                var whitespaceErrorString = "Tag name cannot be null or whitespace.";
+                    (invalidText, invalidCharacter) => $"Tag helpers cannot target tag name '{invalidText}' because it contains a '{invalidCharacter}' character.";
+                var whitespaceErrorString = "Targeted tag name cannot be null or whitespace.";
 
                 var data = GetInvalidNameOrPrefixData(onNameError, whitespaceErrorString, onDataError: null);
                 data.Add(string.Empty, new[] { whitespaceErrorString });
@@ -1354,11 +1353,6 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
         {
             get
             {
-                var dataDashDescriptor = new RazorDiagnosticDescriptor(
-                    "TODO: Track IDS",
-                    () => "Invalid tag helper bound property '{0}.{1}'. Tag helpers cannot bind to HTML attributes with {2} '{3}' because {2} starts with '{4}'.",
-                    RazorDiagnosticSeverity.Error);
-
                 // type, expectedAttributeDescriptors
                 return new TheoryData<Type, IEnumerable<BoundAttributeDescriptor>>
                 {
@@ -1371,14 +1365,10 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .PropertyName(nameof(InvalidBoundAttribute.DataSomething))
                                 .TypeName(typeof(string).FullName)
                                 .AddDiagnostic(
-                                    RazorDiagnostic.Create(
-                                        dataDashDescriptor,
-                                        new SourceSpan(SourceLocation.Undefined, contentLength: 0),
-                                        typeof(InvalidBoundAttribute).FullName,
-                                        nameof(InvalidBoundAttribute.DataSomething),
-                                        "name",
-                                        "data-something",
-                                        "data-"))
+                                    AspNetCore.Razor.Evolution.RazorDiagnosticFactory.CreateTagHelper_InvalidBoundAttributeNameStartsWith(
+                                        typeof(InvalidBoundAttribute).FullName, 
+                                        nameof(InvalidBoundAttribute.DataSomething), 
+                                        "data-something"))
                                 .Build()
                         }
                     },
@@ -1391,14 +1381,10 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .PropertyName(nameof(InvalidBoundAttributeWithValid.DataSomething))
                                 .TypeName(typeof(string).FullName)
                                 .AddDiagnostic(
-                                    RazorDiagnostic.Create(
-                                        dataDashDescriptor,
-                                        new SourceSpan(SourceLocation.Undefined, contentLength: 0),
+                                    AspNetCore.Razor.Evolution.RazorDiagnosticFactory.CreateTagHelper_InvalidBoundAttributeNameStartsWith(
                                         typeof(InvalidBoundAttributeWithValid).FullName,
                                         nameof(InvalidBoundAttributeWithValid.DataSomething),
-                                        "name",
-                                        "data-something",
-                                        "data-"))
+                                        "data-something"))
                                 .Build(),
                             ITagHelperBoundAttributeDescriptorBuilder.Create(typeof(InvalidBoundAttributeWithValid).FullName)
                                 .Name("int-attribute")
@@ -1427,14 +1413,10 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .PropertyName(nameof(OverriddenValidBoundAttributeWithInvalid.ValidSomething))
                                 .TypeName(typeof(string).FullName)
                                 .AddDiagnostic(
-                                    RazorDiagnostic.Create(
-                                        dataDashDescriptor,
-                                        new SourceSpan(SourceLocation.Undefined, contentLength: 0),
+                                    AspNetCore.Razor.Evolution.RazorDiagnosticFactory.CreateTagHelper_InvalidBoundAttributeNameStartsWith(
                                         typeof(OverriddenValidBoundAttributeWithInvalid).FullName,
                                         nameof(OverriddenValidBoundAttributeWithInvalid.ValidSomething),
-                                        "name",
-                                        "data-something",
-                                        "data-"))
+                                        "data-something"))
                                 .Build()
                         }
                     },
@@ -1447,14 +1429,10 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .PropertyName(nameof(OverriddenValidBoundAttributeWithInvalidUpperCase.ValidSomething))
                                 .TypeName(typeof(string).FullName)
                                 .AddDiagnostic(
-                                    RazorDiagnostic.Create(
-                                        dataDashDescriptor,
-                                        new SourceSpan(SourceLocation.Undefined, contentLength: 0),
+                                    AspNetCore.Razor.Evolution.RazorDiagnosticFactory.CreateTagHelper_InvalidBoundAttributeNameStartsWith(
                                         typeof(OverriddenValidBoundAttributeWithInvalidUpperCase).FullName,
                                         nameof(OverriddenValidBoundAttributeWithInvalidUpperCase.ValidSomething),
-                                        "name",
-                                        "DATA-SOMETHING",
-                                        "data-"))
+                                        "DATA-SOMETHING"))
                                 .Build()
                         }
                     },
@@ -1566,16 +1544,15 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
         {
             get
             {
-                Func<string, string, string> onNameError = (invalidText, invalidCharacter) => "Invalid tag helper " +
-                    "bound property 'DynamicTestTagHelper.InvalidProperty'. Tag helpers cannot " +
-                    $"bind to HTML attributes with name '{ invalidText }' because name contains a " +
-                    $"'{ invalidCharacter }' character.";
-                var whitespaceErrorString = "Invalid tag helper bound property " +
-                    "'DynamicTestTagHelper.InvalidProperty'. Tag helpers cannot bind to HTML " +
-                    "attributes with a whitespace name.";
-                Func<string, string> onDataError = invalidText => "Invalid tag helper bound property " +
-                    $"'DynamicTestTagHelper.InvalidProperty'. Tag helpers cannot bind to HTML " +
-                    $"attributes with name '{ invalidText }' because name starts with 'data-'.";
+                Func<string, string, string> onNameError = (invalidText, invalidCharacter) =>
+                    "Invalid tag helper bound property 'DynamicTestTagHelper.InvalidProperty'. Tag helpers " +
+                    $"cannot bind to HTML attributes with name '{invalidText}' because the name contains a '{invalidCharacter}' character.";
+                var whitespaceErrorString =
+                    "Invalid tag helper bound property 'DynamicTestTagHelper.InvalidProperty'. Tag helpers cannot " +
+                    "bind to HTML attributes with a null or empty name.";
+                Func<string, string> onDataError = invalidText =>
+                "Invalid tag helper bound property 'DynamicTestTagHelper.InvalidProperty'. Tag helpers cannot bind "+
+                $"to HTML attributes with name '{invalidText}' because the name starts with 'data-'.";
 
                 return GetInvalidNameOrPrefixData(onNameError, whitespaceErrorString, onDataError);
             }
@@ -1611,16 +1588,14 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
         {
             get
             {
-                Func<string, string, string> onPrefixError = (invalidText, invalidCharacter) => "Invalid tag helper " +
-                    "bound property 'DynamicTestTagHelper.InvalidProperty'. Tag helpers cannot " +
-                    $"bind to HTML attributes with prefix '{ invalidText }' because prefix contains a " +
-                    $"'{ invalidCharacter }' character.";
-                var whitespaceErrorString = "Invalid tag helper bound property " +
-                    "'DynamicTestTagHelper.InvalidProperty'. Tag helpers cannot bind to HTML " +
-                    "attributes with a whitespace prefix.";
-                Func<string, string> onDataError = invalidText => "Invalid tag helper bound property " +
-                    "'DynamicTestTagHelper.InvalidProperty'. Tag helpers cannot bind to HTML " +
-                    $"attributes with prefix '{ invalidText }' because prefix starts with 'data-'.";
+                Func<string, string, string> onPrefixError = (invalidText, invalidCharacter) =>
+                    "Invalid tag helper bound property 'DynamicTestTagHelper.InvalidProperty'. Tag helpers "+
+                    $"cannot bind to HTML attributes with prefix '{invalidText}' because the prefix contains a '{invalidCharacter}' character.";
+                var whitespaceErrorString =
+                    "Invalid tag helper bound property 'DynamicTestTagHelper.InvalidProperty'. Tag helpers cannot bind to HTML attributes with a null or empty name.";
+                Func<string, string> onDataError = invalidText =>
+                    "Invalid tag helper bound property 'DynamicTestTagHelper.InvalidProperty'. Tag helpers cannot bind to HTML attributes "+
+                    $"with prefix '{invalidText}' because the prefix starts with 'data-'.";
 
                 return GetInvalidNameOrPrefixData(onPrefixError, whitespaceErrorString, onDataError);
             }
@@ -1656,14 +1631,11 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
             get
             {
                 var nullOrWhiteSpaceError =
-                    Resources.FormatTagHelperDescriptorFactory_InvalidRestrictChildrenAttributeNameNullWhitespace(
-                        typeof(AspNetCore.Razor.TagHelpers.RestrictChildrenAttribute).FullName,
-                        "DynamicTestTagHelper");
+                    AspNetCore.Razor.Evolution.Resources.FormatInvalidRestrictedChildNullOrWhitespace("DynamicTestTagHelper");
 
                 return GetInvalidNameOrPrefixData(
                     onNameError: (invalidInput, invalidCharacter) =>
-                        Resources.FormatTagHelperDescriptorFactory_InvalidRestrictChildrenAttributeName(
-                            typeof(AspNetCore.Razor.TagHelpers.RestrictChildrenAttribute).FullName,
+                        AspNetCore.Razor.Evolution.Resources.FormatInvalidRestrictedChild(
                             invalidInput,
                             "DynamicTestTagHelper",
                             invalidCharacter),
@@ -1701,13 +1673,11 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
             get
             {
                 var nullOrWhiteSpaceError =
-                    Resources.FormatHtmlTargetElementAttribute_NameCannotBeNullOrWhitespace(
-                        Resources.TagHelperDescriptorFactory_ParentTag);
+                    AspNetCore.Razor.Evolution.Resources.InvalidTargetedParentTagNameNullOrWhitespace;
 
                 return GetInvalidNameOrPrefixData(
                     onNameError: (invalidInput, invalidCharacter) =>
-                        Resources.FormatHtmlTargetElementAttribute_InvalidName(
-                            Resources.TagHelperDescriptorFactory_ParentTag.ToLower(),
+                        AspNetCore.Razor.Evolution.Resources.FormatInvalidTargetedParentTagName(
                             invalidInput,
                             invalidCharacter),
                     whitespaceErrorString: nullOrWhiteSpaceError,
@@ -1850,7 +1820,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .PropertyName(nameof(SingleInvalidHtmlAttributePrefix.StringProperty))
                                 .TypeName(typeof(string).FullName)
                                 .AddDiagnostic(
-                                    DiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
+                                    RazorDiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
                                         typeof(SingleInvalidHtmlAttributePrefix).FullName, 
                                         nameof(SingleInvalidHtmlAttributePrefix.StringProperty)))
                                 .Build(),
@@ -1871,7 +1841,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .TypeName($"{typeof(Dictionary<,>).Namespace}.Dictionary<System.Int32, System.String>")
                                 .AsDictionary("valid-prefix2-", typeof(string).FullName)
                                 .AddDiagnostic(
-                                    DiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
+                                    RazorDiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
                                         typeof(MultipleInvalidHtmlAttributePrefix).FullName, 
                                         nameof(MultipleInvalidHtmlAttributePrefix.DictionaryOfIntProperty)))
                                 .Build(),
@@ -1880,7 +1850,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .PropertyName(nameof(MultipleInvalidHtmlAttributePrefix.ReadOnlyDictionaryProperty))
                                 .TypeName($"{typeof(IReadOnlyDictionary<,>).Namespace}.IReadOnlyDictionary<System.String, System.Object>")
                                 .AddDiagnostic(
-                                    DiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
+                                    RazorDiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
                                         typeof(MultipleInvalidHtmlAttributePrefix).FullName, 
                                         nameof(MultipleInvalidHtmlAttributePrefix.ReadOnlyDictionaryProperty)))
                                 .Build(),
@@ -1889,7 +1859,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .PropertyName(nameof(MultipleInvalidHtmlAttributePrefix.IntProperty))
                                 .TypeName(typeof(int).FullName)
                                 .AddDiagnostic(
-                                    DiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
+                                    RazorDiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
                                         typeof(MultipleInvalidHtmlAttributePrefix).FullName, 
                                         nameof(MultipleInvalidHtmlAttributePrefix.IntProperty)))
                                 .Build(),
@@ -1899,7 +1869,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .TypeName(typeof(DictionaryOfIntSubclass).FullName)
                                 .AsDictionary("valid-prefix5-", typeof(string).FullName)
                                 .AddDiagnostic(
-                                    DiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
+                                    RazorDiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
                                         typeof(MultipleInvalidHtmlAttributePrefix).FullName, 
                                         nameof(MultipleInvalidHtmlAttributePrefix.DictionaryOfIntSubclassProperty)))
                                 .Build(),
@@ -1908,7 +1878,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .TypeName($"{dictionaryNamespace}<System.Int32, System.String>")
                                 .AsDictionary("valid-prefix6", typeof(string).FullName)
                                 .AddDiagnostic(
-                                    DiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
+                                    RazorDiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(
                                         typeof(MultipleInvalidHtmlAttributePrefix).FullName, 
                                         nameof(MultipleInvalidHtmlAttributePrefix.GetOnlyDictionaryAttributePrefix)))
                                 .Build(),
@@ -1917,7 +1887,7 @@ namespace Microsoft.CodeAnalysis.Razor.Workspaces
                                 .TypeName($"{dictionaryNamespace}<System.String, System.Object>")
                                 .AsDictionary("invalid-name7-", typeof(object).FullName)
                                 .AddDiagnostic(
-                                    DiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNull(
+                                    RazorDiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNull(
                                         typeof(MultipleInvalidHtmlAttributePrefix).FullName, 
                                         nameof(MultipleInvalidHtmlAttributePrefix.GetOnlyDictionaryPropertyWithAttributeName)))
                                 .Build(),

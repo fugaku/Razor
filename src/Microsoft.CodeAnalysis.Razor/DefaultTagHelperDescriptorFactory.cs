@@ -275,7 +275,7 @@ namespace Microsoft.CodeAnalysis.Razor
             else if (hasExplicitName && !IsPotentialDictionaryProperty(property))
             {
                 // Specified HtmlAttributeNameAttribute.Name though property has no public setter.
-                var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidAttributeNameNullOrEmpty(GetFullName(containingType), property.Name);
+                var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidAttributeNameNullOrEmpty(GetFullName(containingType), property.Name);
                 builder.AddDiagnostic(diagnostic);
             }
 
@@ -331,7 +331,7 @@ namespace Microsoft.CodeAnalysis.Razor
                 {
                     // DictionaryAttributePrefix is not supported unless associated with an
                     // IDictionary<string, TValue> property.
-                    var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(GetFullName(containingType), property.Name);
+                    var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNotNull(GetFullName(containingType), property.Name);
                     builder.AddDiagnostic(diagnostic);
                 }
 
@@ -341,7 +341,7 @@ namespace Microsoft.CodeAnalysis.Razor
             {
                 // Must set DictionaryAttributePrefix when using HtmlAttributeNameAttribute with a dictionary property
                 // that lacks a public setter.
-                var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNull(GetFullName(containingType), property.Name);
+                var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidAttributePrefixNull(GetFullName(containingType), property.Name);
                 builder.AddDiagnostic(diagnostic);
 
                 return;
@@ -572,7 +572,7 @@ namespace Microsoft.CodeAnalysis.Razor
                             }
                             else if (!AtEnd)
                             {
-                                var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeCharacter(Current, _requiredAttributes);
+                                var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeCharacter(Current, _requiredAttributes);
                                 attributeBuilder.AddDiagnostic(diagnostic);
                                 successfulParse = false;
                                 return;
@@ -652,7 +652,7 @@ namespace Microsoft.CodeAnalysis.Razor
                         }
                         else if (op != '=') // We're at an incomplete operator (ex: [foo^]
                         {
-                            var diagnostic = DiagnosticFactory.CreateTagHelper_PartialRequiredAttributeOperator(op, _requiredAttributes);
+                            var diagnostic = RazorDiagnosticFactory.CreateTagHelper_PartialRequiredAttributeOperator(op, _requiredAttributes);
                             builder.AddDiagnostic(diagnostic);
 
                             return false;
@@ -660,7 +660,7 @@ namespace Microsoft.CodeAnalysis.Razor
                     }
                     else if (!At(']'))
                     {
-                        var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeOperator(Current, _requiredAttributes);
+                        var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeOperator(Current, _requiredAttributes);
                         builder.AddDiagnostic(diagnostic);
 
                         return false;
@@ -686,7 +686,7 @@ namespace Microsoft.CodeAnalysis.Razor
                         valueEnd = _requiredAttributes.IndexOf(quote, _index);
                         if (valueEnd == -1)
                         {
-                            var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeMismatchedQuotes(quote, _requiredAttributes);
+                            var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeMismatchedQuotes(quote, _requiredAttributes);
                             builder.AddDiagnostic(diagnostic);
 
                             return false;
@@ -752,12 +752,12 @@ namespace Microsoft.CodeAnalysis.Razor
                     }
                     else if (AtEnd)
                     {
-                        var diagnostic = DiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace(_requiredAttributes);
+                        var diagnostic = RazorDiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace(_requiredAttributes);
                         attributeBuilder.AddDiagnostic(diagnostic);
                     }
                     else
                     {
-                        var diagnostic = DiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeCharacter(Current, _requiredAttributes);
+                        var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidRequiredAttributeCharacter(Current, _requiredAttributes);
                         attributeBuilder.AddDiagnostic(diagnostic);
                     }
 
@@ -768,7 +768,7 @@ namespace Microsoft.CodeAnalysis.Razor
                 {
                     if (AtEnd)
                     {
-                        var diagnostic = DiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace(_requiredAttributes);
+                        var diagnostic = RazorDiagnosticFactory.CreateTagHelper_CouldNotFindMatchingEndBrace(_requiredAttributes);
                         builder.AddDiagnostic(diagnostic);
 
                         return false;

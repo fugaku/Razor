@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Razor.Evolution;
 
 namespace Microsoft.CodeAnalysis.Razor
 {
-    internal static class DiagnosticFactory
+    internal static class RazorDiagnosticFactory
     {
         private const string DiagnosticPrefix = "RZ";
 
@@ -17,7 +17,7 @@ namespace Microsoft.CodeAnalysis.Razor
         #region General Errors
 
         /*
-         * General Errors ID Offset = 2500
+         * General Errors ID Offset = 500
          */
 
         #endregion
@@ -25,7 +25,7 @@ namespace Microsoft.CodeAnalysis.Razor
         #region Language Errors
 
         /*
-         * Language Errors ID Offset = 2500
+         * Language Errors ID Offset = 1500
          */
 
         #endregion

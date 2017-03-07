@@ -120,6 +120,9 @@
   <data name="TagHelperDescriptorFactory_CouldNotFindMatchingEndBrace" xml:space="preserve">
     <value>Could not find matching ']' for required attribute '{0}'.</value>
   </data>
+  <data name="TagHelperDescriptorFactory_InvalidAttributePrefixNotNull" xml:space="preserve">
+    <value>Invalid tag helper bound property '{0}.{1}'. '{2}.{3}' must be null unless property type implements '{4}'.</value>
+  </data>
   <data name="TagHelperDescriptorFactory_InvalidAttributeNameNotNullOrEmpty" xml:space="preserve">
     <value>Invalid tag helper bound property '{0}.{1}'. '{2}.{3}' must be null or empty if property has no public setter.</value>
   </data>

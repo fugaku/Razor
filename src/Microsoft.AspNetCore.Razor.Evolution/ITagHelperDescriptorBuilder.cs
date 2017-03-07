@@ -141,11 +141,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
                 {
                     if (string.IsNullOrWhiteSpace(name))
                     {
-                        var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                            "TODO: Track IDS",
-                            () => "Invalid '{0}' tag name for tag helper '{1}'. Name cannot be null or whitespace.",
-                            RazorDiagnosticSeverity.Error);
-                        var diagnostic = RazorDiagnostic.Create(diagnosticDescriptor, new SourceSpan(SourceLocation.Undefined, contentLength: 0), "Microsoft.AspNetCore.Razor.TagHelpers.RestrictChildrenAttribute", _typeName);
+                        var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidRestrictedChildNullOrWhitespace(_typeName);
 
                         yield return diagnostic;
                     }
@@ -155,18 +151,7 @@ namespace Microsoft.AspNetCore.Razor.Evolution
                         {
                             if (char.IsWhiteSpace(character) || InvalidNonWhitespaceAllowedChildCharacters.Contains(character))
                             {
-                                var diagnosticDescriptor = new RazorDiagnosticDescriptor(
-                                    "TODO: Track IDS",
-                                    () => "Invalid '{0}' tag name '{1}' for tag helper '{2}'. Tag helpers cannot restrict child elements that contain a '{3}' character.",
-                                    RazorDiagnosticSeverity.Error);
-
-                                var diagnostic = RazorDiagnostic.Create(
-                                    diagnosticDescriptor,
-                                    new SourceSpan(SourceLocation.Undefined, contentLength: 0),
-                                    "Microsoft.AspNetCore.Razor.TagHelpers.RestrictChildrenAttribute",
-                                    name,
-                                    _typeName,
-                                    character);
+                                var diagnostic = RazorDiagnosticFactory.CreateTagHelper_InvalidRestrictedChild(name, _typeName, character);
 
                                 yield return diagnostic;
                             }
