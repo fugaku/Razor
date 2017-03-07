@@ -9,9 +9,6 @@ namespace Microsoft.AspNetCore.Razor.Evolution.IntegrationTests
 {
     public class TestTagHelperDescriptors
     {
-        //internal static IEnumerable<TagHelperDescriptor> PrefixedPAndInputTagHelperDescriptors { get; }
-            //= BuildPAndInputTagHelperDescriptors(prefix: "THS");
-
         internal static IEnumerable<TagHelperDescriptor> SimpleTagHelperDescriptors
         {
             get
