@@ -1,0 +1,116 @@
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+#if RAZOR_EXTENSION_DEVELOPER_MODE
+
+using System;
+using System.Linq;
+using System.Runtime.InteropServices;
+using Microsoft.CodeAnalysis.Razor;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.Editor;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.TextManager.Interop;
+
+namespace Microsoft.VisualStudio.RazorExtension.DocumentInfo
+{
+    [Guid("d8d83218-309c-4c8f-9c9f-38a6fead8dca")]
+    public class RazorDocumentInfoWindow : ToolWindowPane
+    {
+        private IVsEditorAdaptersFactoryService _adapterFactory;
+        private IVsTextManager _textManager;
+        private IVsRunningDocumentTable _rdt;
+        
+        private uint _cookie;
+        private ITextView _textView;
+        private ITextBuffer _textBuffer;
+
+        public RazorDocumentInfoWindow() 
+            : base(null)
+        {
+            Caption = "Razor Document Info";
+
+            Content = new RazorDocumentInfoWindowControl();
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+
+            var component = (IComponentModel)GetService(typeof(SComponentModel));
+            _adapterFactory = component.GetService<IVsEditorAdaptersFactoryService>();
+            
+            _textManager = (IVsTextManager)GetService(typeof(SVsTextManager));
+            _rdt = (IVsRunningDocumentTable)GetService(typeof(SVsRunningDocumentTable));
+            
+            var hr = _rdt.AdviseRunningDocTableEvents(new RdtEvents(this), out uint _cookie);
+            ErrorHandler.ThrowOnFailure(hr);
+        }
+
+        protected override void OnClose()
+        {
+            _rdt.UnadviseRunningDocTableEvents(_cookie);
+            _cookie = 0u;
+
+            base.OnClose();
+        }
+
+        private void OnBeforeDocumentWindowShow(IVsWindowFrame frame)
+        {
+            var vsTextView = VsShellUtilities.GetTextView(frame);
+
+            var textView = _adapterFactory.GetWpfTextView(vsTextView);
+            if (textView != null && textView != _textView)
+            {
+                _textView = textView;
+                _textBuffer = _textView.BufferGraph.GetTextBuffers(b => b.ContentType.TypeName == RazorLanguage.ContentType).FirstOrDefault();
+            }
+        }
+
+        private void OnAfterDocumentWindowHide(IVsWindowFrame frame)
+        {
+            var vsTextView = VsShellUtilities.GetTextView(frame);
+
+            var textView = _adapterFactory.GetWpfTextView(vsTextView);
+            if (textView == _textView)
+            {
+                _textBuffer = null;
+                _textView = null;
+            }
+        }
+
+        private class RdtEvents : IVsRunningDocTableEvents
+        {
+            private readonly RazorDocumentInfoWindow _window;
+
+            public RdtEvents(RazorDocumentInfoWindow window)
+            {
+                _window = window;
+            }
+
+            public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining) => VSConstants.S_OK;
+
+            public int OnBeforeLastDocumentUnlock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining) => VSConstants.S_OK;
+
+            public int OnAfterSave(uint docCookie) => VSConstants.S_OK;
+
+            public int OnAfterAttributeChange(uint docCookie, uint grfAttribs) => VSConstants.S_OK;
+
+            public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame)
+            {
+                _window.OnBeforeDocumentWindowShow(pFrame);
+                return VSConstants.S_OK;
+            }
+
+            public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame)
+            {
+                _window.OnAfterDocumentWindowHide(pFrame);
+                return VSConstants.S_OK;
+            }
+        }
+    }
+}
+#endif
