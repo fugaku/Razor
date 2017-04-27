@@ -5,9 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Razor.Language;
-using Microsoft.AspNetCore.Razor.Language.Legacy;
 using Microsoft.CodeAnalysis;
 
 namespace Microsoft.CodeAnalysis.Razor
@@ -16,17 +14,6 @@ namespace Microsoft.CodeAnalysis.Razor
     {
         private const string DataDashPrefix = "data-";
         private const string TagHelperNameEnding = "TagHelper";
-        private const string HtmlCaseRegexReplacement = "-$1$2";
-
-        // This matches the following AFTER the start of the input string (MATCH).
-        // Any letter/number followed by an uppercase letter then lowercase letter: 1(Aa), a(Aa), A(Aa)
-        // Any lowercase letter followed by an uppercase letter: a(A)
-        // Each match is then prefixed by a "-" via the ToHtmlCase method.
-        private static readonly Regex HtmlCaseRegex =
-            new Regex(
-                "(?<!^)((?<=[a-zA-Z0-9])[A-Z][a-z])|((?<=[a-z])[A-Z])",
-                RegexOptions.None,
-                TimeSpan.FromMilliseconds(500));
 
         private readonly INamedTypeSymbol _htmlAttributeNameAttributeSymbol;
         private readonly INamedTypeSymbol _htmlAttributeNotBoundAttributeSymbol;
@@ -44,9 +31,8 @@ namespace Microsoft.CodeAnalysis.Razor
                 .WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted)
                 .WithMiscellaneousOptions(SymbolDisplayFormat.FullyQualifiedFormat.MiscellaneousOptions & (~SymbolDisplayMiscellaneousOptions.UseSpecialTypes));
 
-        public DefaultTagHelperDescriptorFactory(Compilation compilation, bool designTime)
+        public DefaultTagHelperDescriptorFactory(Compilation compilation)
         {
-            DesignTime = designTime;
             _htmlAttributeNameAttributeSymbol = compilation.GetTypeByMetadataName(TagHelperTypes.HtmlAttributeNameAttribute);
             _htmlAttributeNotBoundAttributeSymbol = compilation.GetTypeByMetadataName(TagHelperTypes.HtmlAttributeNotBoundAttribute);
             _htmlTargetElementAttributeSymbol = compilation.GetTypeByMetadataName(TagHelperTypes.HtmlTargetElementAttribute);
@@ -56,19 +42,12 @@ namespace Microsoft.CodeAnalysis.Razor
             _iDictionarySymbol = compilation.GetTypeByMetadataName(TagHelperTypes.IDictionary);
         }
 
-        protected bool DesignTime { get; }
-
         /// <inheritdoc />
         public virtual TagHelperDescriptor CreateDescriptor(INamedTypeSymbol type)
         {
             if (type == null)
             {
                 throw new ArgumentNullException(nameof(type));
-            }
-
-            if (ShouldSkipDescriptorCreation(type))
-            {
-                return null;
             }
 
             var typeName = GetFullName(type);
@@ -80,9 +59,9 @@ namespace Microsoft.CodeAnalysis.Razor
             AddAllowedChildren(type, descriptorBuilder);
             AddDocumentation(type, descriptorBuilder);
             AddTagOutputHint(type, descriptorBuilder);
+            AddVisibility(type, descriptorBuilder);
 
             var descriptor = descriptorBuilder.Build();
-
             return descriptor;
         }
 
@@ -104,7 +83,7 @@ namespace Microsoft.CodeAnalysis.Razor
 
                 descriptorBuilder.TagMatchingRule(ruleBuilder =>
                 {
-                    var htmlCasedName = ToHtmlCase(name);
+                    var htmlCasedName = TagHelperDescriptorBuilder.ToHtmlCase(name);
                     ruleBuilder.RequireTagName(htmlCasedName);
                 });
 
@@ -135,11 +114,6 @@ namespace Microsoft.CodeAnalysis.Razor
             var accessibleProperties = GetAccessibleProperties(type);
             foreach (var property in accessibleProperties)
             {
-                if (ShouldSkipDescriptorCreation(property))
-                {
-                    continue;
-                }
-
                 builder.BindAttribute(attributeBuilder =>
                 {
                     ConfigureBoundAttribute(attributeBuilder, property, type);
@@ -168,11 +142,6 @@ namespace Microsoft.CodeAnalysis.Razor
 
         private void AddDocumentation(INamedTypeSymbol type, TagHelperDescriptorBuilder builder)
         {
-            if (!DesignTime)
-            {
-                return;
-            }
-
             var xml = type.GetDocumentationCommentXml();
 
             if (!string.IsNullOrEmpty(xml))
@@ -183,10 +152,6 @@ namespace Microsoft.CodeAnalysis.Razor
 
         private void AddTagOutputHint(INamedTypeSymbol type, TagHelperDescriptorBuilder builder)
         {
-            if (!DesignTime)
-            {
-                return;
-            }
             string outputElementHint = null;
             var outputElementHintAttribute = type.GetAttributes().Where(a => a.AttributeClass == _outputElementHintAttributeSymbol).FirstOrDefault();
             if (outputElementHintAttribute != null)
@@ -213,7 +178,7 @@ namespace Microsoft.CodeAnalysis.Razor
                 string.IsNullOrEmpty((string)attributeNameAttribute.ConstructorArguments[0].Value))
             {
                 hasExplicitName = false;
-                attributeName = ToHtmlCase(property.Name);
+                attributeName = TagHelperDescriptorBuilder.ToHtmlCase(property.Name);
             }
             else
             {
@@ -236,14 +201,11 @@ namespace Microsoft.CodeAnalysis.Razor
                     builder.AsEnum();
                 }
 
-                if (DesignTime)
-                {
-                    var xml = property.GetDocumentationCommentXml();
+                var xml = property.GetDocumentationCommentXml();
 
-                    if (!string.IsNullOrEmpty(xml))
-                    {
-                        builder.Documentation(xml);
-                    }
+                if (!string.IsNullOrEmpty(xml))
+                {
+                    builder.Documentation(xml);
                 }
             }
             else if (hasExplicitName && !IsPotentialDictionaryProperty(property))
@@ -253,15 +215,17 @@ namespace Microsoft.CodeAnalysis.Razor
                 builder.AddDiagnostic(diagnostic);
             }
 
+            AddVisibility(property, builder);
+
             ConfigureDictionaryBoundAttribute(builder, property, containingType, attributeNameAttribute, attributeName, hasPublicSetter);
         }
 
         private void ConfigureDictionaryBoundAttribute(
-            ITagHelperBoundAttributeDescriptorBuilder builder, 
-            IPropertySymbol property, 
-            INamedTypeSymbol containingType, 
-            AttributeData attributeNameAttribute, 
-            string attributeName, 
+            ITagHelperBoundAttributeDescriptorBuilder builder,
+            IPropertySymbol property,
+            INamedTypeSymbol containingType,
+            AttributeData attributeNameAttribute,
+            string attributeName,
             bool hasPublicSetter)
         {
             string dictionaryAttributePrefix = null;
@@ -429,41 +393,34 @@ namespace Microsoft.CodeAnalysis.Razor
             return accessibleProperties.Values;
         }
 
-        private bool ShouldSkipDescriptorCreation(ISymbol symbol)
+        private void AddVisibility(ISymbol symbol, TagHelperDescriptorBuilder builder)
         {
-            if (DesignTime)
+            var editorBrowsableAttribute = symbol.GetAttributes().Where(a => a.AttributeClass == _editorBrowsableAttributeSymbol).FirstOrDefault();
+            if (editorBrowsableAttribute == null)
             {
-                var editorBrowsableAttribute = symbol.GetAttributes().Where(a => a.AttributeClass == _editorBrowsableAttributeSymbol).FirstOrDefault();
-
-                if (editorBrowsableAttribute == null)
-                {
-                    return false;
-                }
-
-                if (editorBrowsableAttribute.ConstructorArguments.Length > 0)
-                {
-                    return (EditorBrowsableState)editorBrowsableAttribute.ConstructorArguments[0].Value == EditorBrowsableState.Never;
-                }
+                return;
             }
 
-            return false;
+            if (editorBrowsableAttribute.ConstructorArguments.Length > 0 &&
+                (EditorBrowsableState)editorBrowsableAttribute.ConstructorArguments[0].Value == EditorBrowsableState.Never)
+            {
+                builder.AddMetadata("EditorBrowsable", "Never");
+            }
         }
 
-        /// <summary>
-        /// Converts from pascal/camel case to lower kebab-case.
-        /// </summary>
-        /// <example>
-        /// SomeThing => some-thing
-        /// capsONInside => caps-on-inside
-        /// CAPSOnOUTSIDE => caps-on-outside
-        /// ALLCAPS => allcaps
-        /// One1Two2Three3 => one1-two2-three3
-        /// ONE1TWO2THREE3 => one1two2three3
-        /// First_Second_ThirdHi => first_second_third-hi
-        /// </example>
-        internal static string ToHtmlCase(string name)
+        private void AddVisibility(ISymbol symbol, ITagHelperBoundAttributeDescriptorBuilder builder)
         {
-            return HtmlCaseRegex.Replace(name, HtmlCaseRegexReplacement).ToLowerInvariant();
+            var editorBrowsableAttribute = symbol.GetAttributes().Where(a => a.AttributeClass == _editorBrowsableAttributeSymbol).FirstOrDefault();
+            if (editorBrowsableAttribute == null)
+            {
+                return;
+            }
+
+            if (editorBrowsableAttribute.ConstructorArguments.Length > 0 &&
+                (EditorBrowsableState)editorBrowsableAttribute.ConstructorArguments[0].Value == EditorBrowsableState.Never)
+            {
+                builder.AddMetadata("EditorBrowsable", "Never");
+            }
         }
 
         private static string GetFullName(ITypeSymbol type) => type.ToDisplayString(FullNameTypeDisplayFormat);

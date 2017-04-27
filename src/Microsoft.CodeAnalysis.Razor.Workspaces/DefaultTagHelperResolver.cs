@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Razor.Language;
 
 namespace Microsoft.CodeAnalysis.Razor
@@ -20,68 +19,42 @@ namespace Microsoft.CodeAnalysis.Razor
         {
             var descriptors = new List<TagHelperDescriptor>();
 
-            VisitTagHelpers(compilation, assemblyNameFilters, descriptors);
-            VisitViewComponents(compilation, assemblyNameFilters, descriptors);
+            var providers = new ITagHelperDescriptorProvider[]
+            {
+                new DefaultTagHelperDescriptorProvider(),
+                new ViewComponentTagHelperDescriptorProvider(),
+            };
 
+            var results = new List<TagHelperDescriptor>();
+            var context = new Context(results);
+
+            for (var i = 0; i < providers.Length; i++)
+            {
+                var provider = providers[i];
+                provider.Execute(context);
+            }
+            
             var diagnostics = new List<RazorDiagnostic>();
-            var resolutionResult = new TagHelperResolutionResult(descriptors, diagnostics);
+            var resolutionResult = new TagHelperResolutionResult(results, diagnostics);
 
             return resolutionResult;
         }
 
-        private void VisitTagHelpers(Compilation compilation, IEnumerable<string> assemblyNameFilters, List<TagHelperDescriptor> results)
+        private class Context : TagHelperDescriptorProviderContext
         {
-            var types = new List<INamedTypeSymbol>();
-            var visitor = TagHelperTypeVisitor.Create(compilation, types);
+            private readonly ItemCollection _items;
+            private readonly ICollection<TagHelperDescriptor> _results;
 
-            VisitCompilation(visitor, compilation);
-
-            var factory = new DefaultTagHelperDescriptorFactory(compilation, DesignTime);
-
-            foreach (var type in types)
+            public Context(ICollection<TagHelperDescriptor> results)
             {
-                if (assemblyNameFilters == null || assemblyNameFilters.Contains(type.ContainingAssembly.Identity.Name))
-                {
-                    var descriptor = factory.CreateDescriptor(type);
+                _results = results;
 
-                    if (descriptor != null)
-                    {
-                        results.Add(descriptor);
-                    }
-                }
+                _items = new DefaultItemCollection();
             }
-        }
 
-        private void VisitViewComponents(Compilation compilation, IEnumerable<string> assemblyNameFilters, List<TagHelperDescriptor> results)
-        {
-            var types = new List<INamedTypeSymbol>();
-            var visitor = ViewComponentTypeVisitor.Create(compilation, types);
+            public override ItemCollection Items => _items;
 
-            VisitCompilation(visitor, compilation);
-
-            var factory = new ViewComponentTagHelperDescriptorFactory(compilation);
-            foreach (var type in types)
-            {
-                if (assemblyNameFilters == null || assemblyNameFilters.Contains(type.ContainingAssembly.Identity.Name))
-                {
-                    var descriptor = factory.CreateDescriptor(type);
-
-                    results.Add(descriptor);
-                }
-            }
-        }
-
-        private static void VisitCompilation(SymbolVisitor visitor, Compilation compilation)
-        {
-            visitor.Visit(compilation.Assembly.GlobalNamespace);
-
-            foreach (var reference in compilation.References)
-            {
-                if (compilation.GetAssemblyOrModuleSymbol(reference) is IAssemblySymbol assembly)
-                {
-                    visitor.Visit(assembly.GlobalNamespace);
-                }
-            }
+            public override ICollection<TagHelperDescriptor> Results => _results;
         }
     }
 }

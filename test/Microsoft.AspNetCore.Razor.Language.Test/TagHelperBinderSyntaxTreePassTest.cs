@@ -304,12 +304,11 @@ namespace Microsoft.AspNetCore.Razor.Language
         }
 
         [Fact]
-        public void Execute_NoopsWhenNoResolver()
+        public void Execute_NoopsWhenNoFeature()
         {
             // Arrange
             var engine = RazorEngine.Create(builder =>
             {
-                builder.Features.Add(Mock.Of<ITagHelperFeature>());
             });
             var pass = new TagHelperBinderSyntaxTreePass()
             {
@@ -383,60 +382,20 @@ namespace Microsoft.AspNetCore.Razor.Language
         }
 
         [Fact]
-        public void Execute_RecreatesSyntaxTreeOnResolverErrors()
+        public void Execute_CombinesDiagnosticsFromDirectives()
         {
             // Arrange
-            var resolverError = RazorDiagnostic.Create(new RazorError("Test error", new SourceLocation(19, 1, 17), length: 12));
             var engine = RazorEngine.Create(builder =>
             {
-                var resolver = new ErrorLoggingTagHelperDescriptorResolver(resolverError, tagName: "test");
-                builder.Features.Add(Mock.Of<ITagHelperFeature>(f => f.Resolver == resolver));
+                builder.Features.Add(new TestTagHelperFeature());
             });
-
+            
             var pass = new TagHelperBinderSyntaxTreePass()
             {
                 Engine = engine,
             };
 
-            var sourceDocument = CreateTestSourceDocument();
-            var codeDocument = RazorCodeDocument.Create(sourceDocument);
-            var originalTree = RazorSyntaxTree.Parse(sourceDocument);
-
-            var initialError = RazorDiagnostic.Create(new RazorError("Initial test error", SourceLocation.Zero, length: 1));
-            var erroredOriginalTree = RazorSyntaxTree.Create(
-                originalTree.Root,
-                originalTree.Source,
-                new[] { initialError },
-                originalTree.Options);
-
-            // Act
-            var outputTree = pass.Execute(codeDocument, erroredOriginalTree);
-
-            // Assert
-            Assert.Empty(originalTree.Diagnostics);
-            Assert.NotSame(erroredOriginalTree, outputTree);
-            Assert.Equal(new[] { initialError, resolverError }, outputTree.Diagnostics);
-        }
-
-        [Fact]
-        public void Execute_CombinesDiagnosticsFromTagHelperDescriptor()
-        {
-            // Arrange
-            var resolverError = RazorDiagnostic.Create(new RazorError("Test error", new SourceLocation(19, 1, 17), length: 12));
-            var engine = RazorEngine.Create(builder =>
-            {
-                var resolver = new ErrorLoggingTagHelperDescriptorResolver(resolverError, tagName: null);
-                builder.Features.Add(Mock.Of<ITagHelperFeature>(f => f.Resolver == resolver));
-            });
-
-            var descriptorError = RazorDiagnosticFactory.CreateTagHelper_InvalidTargetedTagNameNullOrWhitespace();
-
-            var pass = new TagHelperBinderSyntaxTreePass()
-            {
-                Engine = engine,
-            };
-
-            var sourceDocument = CreateTestSourceDocument();
+            var sourceDocument = RazorSourceDocument.Create("@addTagHelper Foo,", "test.cshtml");
             var codeDocument = RazorCodeDocument.Create(sourceDocument);
             var originalTree = RazorSyntaxTree.Parse(sourceDocument);
 
@@ -445,7 +404,7 @@ namespace Microsoft.AspNetCore.Razor.Language
 
             // Assert
             Assert.Empty(originalTree.Diagnostics);
-            Assert.Equal(new[] { resolverError, descriptorError }, outputTree.Diagnostics);
+            Assert.Single(outputTree.Diagnostics);
         }
 
         [Fact]
@@ -1465,28 +1424,6 @@ namespace Microsoft.AspNetCore.Razor.Language
             var descriptor = builder.Build();
 
             return descriptor;
-        }
-
-        private class ErrorLoggingTagHelperDescriptorResolver : ITagHelperDescriptorResolver
-        {
-            private readonly RazorDiagnostic _error;
-            private readonly string _tagName;
-
-            public ErrorLoggingTagHelperDescriptorResolver(RazorDiagnostic error, string tagName = null)
-            {
-                _error = error;
-                _tagName = tagName;
-            }
-
-            public IEnumerable<TagHelperDescriptor> Resolve(IList<RazorDiagnostic> errors)
-            {
-                errors.Add(_error);
-
-                return new[] { CreateTagHelperDescriptor(
-                    tagName: _tagName,
-                    typeName: null,
-                    assemblyName: "TestAssembly") };
-            }
         }
     }
 }

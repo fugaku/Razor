@@ -21,10 +21,10 @@ namespace Microsoft.AspNetCore.Razor.Language
 
         public RazorSyntaxTree Execute(RazorCodeDocument codeDocument, RazorSyntaxTree syntaxTree)
         {
-            var resolver = Engine.Features.OfType<ITagHelperFeature>().FirstOrDefault()?.Resolver;
-            if (resolver == null)
+            var feature = Engine.Features.OfType<ITagHelperFeature>().FirstOrDefault();
+            if (feature == null)
             {
-                // No resolver, nothing to do.
+                // No feature, nothing to do.
                 return syntaxTree;
             }
 
@@ -46,7 +46,7 @@ namespace Microsoft.AspNetCore.Razor.Language
             visitor.VisitBlock(syntaxTree.Root);
 
             var errorList = new List<RazorDiagnostic>();
-            var descriptors = (IReadOnlyList<TagHelperDescriptor>)resolver.Resolve(errorList).ToList();
+            var descriptors = feature.GetDescriptors();
 
             var errorSink = new ErrorSink();
             var directives = visitor.Directives;

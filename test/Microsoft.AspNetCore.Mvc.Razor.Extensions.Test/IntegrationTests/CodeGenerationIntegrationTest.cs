@@ -418,7 +418,9 @@ namespace Microsoft.AspNetCore.Mvc.Razor.Extensions.IntegrationTests
                 }
                 else
                 {
-                    b.Features.Add(new DefaultTagHelperFeature());
+                    b.Features.Add(new CompilationTagHelperFeature());
+                    b.Features.Add(new DefaultTagHelperDescriptorProvider());
+                    b.Features.Add(new ViewComponentTagHelperDescriptorProvider());
                 }
             });
         }
@@ -437,7 +439,9 @@ namespace Microsoft.AspNetCore.Mvc.Razor.Extensions.IntegrationTests
                 }
                 else
                 {
-                    b.Features.Add(new DefaultTagHelperFeature());
+                    b.Features.Add(new CompilationTagHelperFeature());
+                    b.Features.Add(new DefaultTagHelperDescriptorProvider());
+                    b.Features.Add(new ViewComponentTagHelperDescriptorProvider());
                 }
             });
         }

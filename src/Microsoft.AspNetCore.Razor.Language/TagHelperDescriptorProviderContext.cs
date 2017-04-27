@@ -5,8 +5,10 @@ using System.Collections.Generic;
 
 namespace Microsoft.AspNetCore.Razor.Language
 {
-    public interface ITagHelperFeature : IRazorEngineFeature
+    public abstract class TagHelperDescriptorProviderContext
     {
-        IReadOnlyList<TagHelperDescriptor> GetDescriptors();
+        public abstract ItemCollection Items { get; }
+
+        public abstract ICollection<TagHelperDescriptor> Results { get; }
     }
 }

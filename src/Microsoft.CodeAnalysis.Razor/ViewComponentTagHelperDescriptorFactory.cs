@@ -26,14 +26,14 @@ namespace Microsoft.CodeAnalysis.Razor
             _viewComponentAttributeSymbol = compilation.GetTypeByMetadataName(ViewComponentTypes.ViewComponentAttribute);
             _genericTaskSymbol = compilation.GetTypeByMetadataName(ViewComponentTypes.GenericTask);
             _taskSymbol = compilation.GetTypeByMetadataName(ViewComponentTypes.Task);
-            _iDictionarySymbol = compilation.GetTypeByMetadataName(TagHelperTypes.IDictionary);
+            _iDictionarySymbol = compilation.GetTypeByMetadataName(ViewComponentTypes.IDictionary);
         }
 
         public virtual TagHelperDescriptor CreateDescriptor(INamedTypeSymbol type)
         {
             var assemblyName = type.ContainingAssembly.Name;
             var shortName = GetShortName(type);
-            var tagName = $"vc:{DefaultTagHelperDescriptorFactory.ToHtmlCase(shortName)}";
+            var tagName = $"vc:{TagHelperDescriptorBuilder.ToHtmlCase(shortName)}";
             var typeName = $"__Generated__{shortName}ViewComponentTagHelper";
             var descriptorBuilder = TagHelperDescriptorBuilder.Create(typeName, assemblyName);
             var methodParameters = GetInvokeMethodParameters(type);
@@ -61,7 +61,7 @@ namespace Microsoft.CodeAnalysis.Razor
                     // because there are two ways of setting values for the attribute.
                     builder.RequireAttribute(attributeBuilder =>
                     {
-                        var lowerKebabName = DefaultTagHelperDescriptorFactory.ToHtmlCase(parameter.Name);
+                        var lowerKebabName = TagHelperDescriptorBuilder.ToHtmlCase(parameter.Name);
                         attributeBuilder.Name(lowerKebabName);
                     });
                 }
@@ -72,7 +72,7 @@ namespace Microsoft.CodeAnalysis.Razor
         {
             foreach (var parameter in methodParameters)
             {
-                var lowerKebabName = DefaultTagHelperDescriptorFactory.ToHtmlCase(parameter.Name);
+                var lowerKebabName = TagHelperDescriptorBuilder.ToHtmlCase(parameter.Name);
                 var typeName = parameter.Type.ToDisplayString(FullNameTypeDisplayFormat);
                 builder.BindAttribute(attributeBuilder =>
                 {
@@ -136,13 +136,17 @@ namespace Microsoft.CodeAnalysis.Razor
 
             if (methods.Length == 0)
             {
-                throw new InvalidOperationException(
-                    ViewComponentResources.FormatViewComponent_CannotFindMethod(ViewComponentTypes.SyncMethodName, ViewComponentTypes.AsyncMethodName, componentType.ToDisplayString(FullNameTypeDisplayFormat)));
+                throw new InvalidOperationException(ViewComponentResources.FormatViewComponent_CannotFindMethod(
+                    ViewComponentTypes.SyncMethodName,
+                    ViewComponentTypes.AsyncMethodName,
+                    componentType.ToDisplayString(FullNameTypeDisplayFormat)));
             }
             else if (methods.Length > 1)
             {
-                throw new InvalidOperationException(
-                    ViewComponentResources.FormatViewComponent_AmbiguousMethods(componentType.ToDisplayString(FullNameTypeDisplayFormat), ViewComponentTypes.AsyncMethodName, ViewComponentTypes.SyncMethodName));
+                throw new InvalidOperationException(ViewComponentResources.FormatViewComponent_AmbiguousMethods(
+                    componentType.ToDisplayString(FullNameTypeDisplayFormat),
+                    ViewComponentTypes.AsyncMethodName,
+                    ViewComponentTypes.SyncMethodName));
             }
 
             var selectedMethod = methods[0];
